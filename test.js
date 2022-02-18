@@ -50,3 +50,15 @@ const makeSomeNoise = (randomArray) =>{
   }); 
 }
 console.log(makeSomeNoise([0,5,9,4,7,6,3,5,8,9,1]));
+
+const randArray = (length) => {
+  let output = [];
+  for(let i = 0;i<length;i++){
+    output.push(Math.floor(Math.random()*100));
+  }
+  return output;
+}
+
+console.log(randArray(10));
+console.log(makeSomeNoise(randArray(20)));
+console.log(makeSomeNoise(randArray(20)).map((v)=>parseFloat((v/175).toFixed(2))));
