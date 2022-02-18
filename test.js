@@ -32,3 +32,5 @@ const pieceWise = (inputArray, newLength) => {
 }
 
 console.log(pieceWise([0,10,12,32,14,25],100));
+console.log(pieceWise([0,10,12,32,14,25],3));
+console.log(pieceWise([0,10,12,32,14,25],5));
