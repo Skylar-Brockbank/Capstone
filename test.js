@@ -34,3 +34,19 @@ const pieceWise = (inputArray, newLength) => {
 console.log(pieceWise([0,10,12,32,14,25],100));
 console.log(pieceWise([0,10,12,32,14,25],3));
 console.log(pieceWise([0,10,12,32,14,25],5));
+
+// const makeSomeNoise = (randomArray) =>{
+//   const arr = pieceWise(randomArray, randomArray.length*12);
+
+// }
+
+const makeSomeNoise = (randomArray) =>{
+  const Phase1a = pieceWise(randomArray, 3);
+  const Phase2a = pieceWise(randomArray, 4);
+  const Phase1b = pieceWise(Phase1a, randomArray.length);
+  const Phase2b = pieceWise(Phase2a, randomArray.length);
+  return Phase1b.map((p1, index)=>{
+    return parseFloat((p1+(Phase2b[index]*.5)+(randomArray[index]*.25)).toFixed(2));
+  }); 
+}
+console.log(makeSomeNoise([0,5,9,4,7,6,3,5,8,9,1]));
