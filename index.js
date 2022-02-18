@@ -22,7 +22,7 @@ const makeSomeNoise = (randomArray) =>{
   const Phase1b = pieceWise(Phase1a, randomArray.length);
   const Phase2b = pieceWise(Phase2a, randomArray.length);
   return Phase1b.map((p1, index)=>{
-    return parseFloat((p1+(Phase2b[index]*.5)+(randomArray[index]*.25)).toFixed(2));
+    return parseFloat((p1+(Phase2b[index]*.5)+(randomArray[index]*.25)).toFixed(4));
   }); 
 }
 
@@ -33,14 +33,68 @@ const randArray = (length) => {
   }
   return output;
 }
+const swapXY = (array) =>{
+  let output = [];
+  for(let i =0; i<array[0].length;i++){
+    let segment=[];
+    for(let j = 0; j<array.length; j++){
+      segment.push(array[j][i])
+    }
+    output.push(segment);
+  }
+  return output;
+}
+//Original Base with not persistance horizonatally
+// const noise2D = (x,y) =>{
+//   let output=[];
+//   for(let i = 0; i<x; i++){
+//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
+//   }
+//   return output;
+// }
+
+//good persistance horizontally but poor range
+// const noise2D = (x,y) =>{
+//   let output=[];
+//   for(let i = 0; i<x; i++){
+//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
+//   }
+//   const squarePhase1 = swapXY(output);
+//   const squarePhase2 = squarePhase1.map((subArray)=>makeSomeNoise(subArray));
+//   const outputPlus = swapXY(squarePhase2);
+//   return outputPlus;
+// }
 
 const noise2D = (x,y) =>{
   let output=[];
   for(let i = 0; i<x; i++){
-    output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
+    output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(4))));
   }
-  return output;
+  const squarePhase1 = swapXY(output);
+  const squarePhase1Half = squarePhase1.map((subRay)=>{
+    let output = [];
+    for(let i =0; i<subRay.length;i++){
+      output.push(subRay[i]/2);
+    }
+    return output;
+  })
+  const squarePhase2 = squarePhase1Half.map((subArray)=>makeSomeNoise(subArray));
+  const outputPlus = swapXY(squarePhase2);
+  return outputPlus;
 }
+
+//First Attempt, poort horizontal persistance
+// const noise2D = (x,y) =>{
+//   let output=[];
+//   for(let i = 0; i<x; i++){
+//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
+//   }
+//   const coNoise=(makeSomeNoise(randArray(x)).map((v)=>parseFloat((v/175).toFixed(2))));
+//   const outputPlus = coNoise.map((cNoise,index)=>{
+//     return output[index].map((noise)=>parseFloat(((2*noise)+(cNoise))/3)-.09)
+//   });
+//   return outputPlus;
+// }
 
 
 const home = document.getElementById('container')
@@ -70,7 +124,12 @@ for(let i =0; i<(x*y);i++){
   home.append(formation);
 }
 
+// const convertToRGB = (decimal) => Math.round(decimal*255);
+
 const convertToRGB = (decimal) => Math.round(decimal*255);
+
+
+console.log(grid);
 // 0:0,1,2,3,4,5,6,7
 // 1:8,9,10,11,12,13,14
 for(let j=0;j<y;j++){
