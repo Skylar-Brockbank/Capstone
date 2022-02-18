@@ -41,3 +41,42 @@ const noise2D = (x,y) =>{
   }
   return output;
 }
+
+
+const home = document.getElementById('container')
+home.style.boxSizing= 'border-box';
+const x = 50;
+const y= 40;
+home.style.height = 'fit-content';
+const q = (window.innerHeight*.8)/y;
+home.style.border = 'solid black 1em';
+home.style.width= 'fit-content';
+home.style.padding= '0';
+home.style.gridGap= '0';
+const grid = noise2D(x,y);
+
+console.log(home);
+
+home.style.display = 'grid';
+home.style.gridTemplateColumns = 'repeat('+ x +', 1fr)';
+
+for(let i =0; i<(x*y);i++){
+  let formation = document.createElement('div');
+  formation.id = i;
+  formation.style.width = ''+q+'px';
+  formation.style.height = ''+q+'px';
+  formation.style.border = 'solid black 1px';
+  home.style.margin= '0';
+  home.append(formation);
+}
+
+const convertToRGB = (decimal) => Math.round(decimal*255);
+// 0:0,1,2,3,4,5,6,7
+// 1:8,9,10,11,12,13,14
+for(let j=0;j<y;j++){
+  for(let k=0; k<x; k++){
+    const value = convertToRGB(grid[k][j]);
+    let focus = document.getElementById(((j*(x))+k));
+    focus.style.backgroundColor = 'rgb('+value+','+value+','+value+')';
+  }
+}
