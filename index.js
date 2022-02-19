@@ -126,8 +126,16 @@ home.style.boxSizing= 'border-box';
 const x = 128;
 const y= 64;
 home.style.height = 'fit-content';
-const q = (window.innerHeight*.8)/y;
-home.style.border = 'solid black 1em';
+let q;
+if(window.innerWidth > window.innerHeight){
+  q = (window.innerHeight*.8)/y;
+  alert('wide');
+}else{
+  q = (window.innerWidth*0.7)/x;
+  alert('narrow');
+}
+document.querySelector('body').style.margin = '0';
+home.style.border = 'solid black 2px';
 home.style.width= 'fit-content';
 home.style.padding= '0';
 home.style.gridGap= '0';
