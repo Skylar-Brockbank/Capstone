@@ -19,18 +19,21 @@ const pieceWise = (inputArray, newLength) => {
 const makeSomeNoise = (randomArray) =>{
   const Phase1a = pieceWise(randomArray, 3);
   const Phase2a = pieceWise(randomArray, 4);
+  const Phase3a = pieceWise(randomArray, 5);
   const Phase1b = pieceWise(Phase1a, randomArray.length);
   const Phase2b = pieceWise(Phase2a, randomArray.length);
+  const Phase3b = pieceWise(Phase3a, randomArray.length);
   return Phase1b.map((p1, index)=>{
-    return parseFloat((p1+(Phase2b[index]*.5)+(randomArray[index]*.25)).toFixed(4));
+    return parseFloat((p1+(Phase2b[index]*.4)+(Phase3b[index]*.2)+(randomArray[index]*.05)).toFixed(4));
   }); 
 }
 
 const randArray = (length) => {
-  let output = [];
-  for(let i = 0;i<length;i++){
+  let output = [0];
+  for(let i = 0;i<length-2;i++){
     output.push(Math.floor(Math.random()*100));
   }
+  output.push(0);
   return output;
 }
 const swapXY = (array) =>{
@@ -53,35 +56,56 @@ const swapXY = (array) =>{
 //   return output;
 // }
 
-//good persistance horizontally but poor range
+// good persistance horizontally but poor range
+const noise2D = (x,y) =>{
+  let output=[];
+  for(let i = 0; i<x; i++){
+    output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
+  }
+  const squarePhase1 = swapXY(output);
+  const squarePhase2 = squarePhase1.map((subArray)=>makeSomeNoise(subArray));
+  const outputPlus = swapXY(squarePhase2);
+  return outputPlus;
+}
+
+
+//poor range
 // const noise2D = (x,y) =>{
 //   let output=[];
 //   for(let i = 0; i<x; i++){
-//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
+//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(4))));
 //   }
 //   const squarePhase1 = swapXY(output);
-//   const squarePhase2 = squarePhase1.map((subArray)=>makeSomeNoise(subArray));
+//   const squarePhase1Half = squarePhase1.map((subRay)=>{
+//     let output = [];
+//     for(let i =0; i<subRay.length;i++){
+//       output.push(subRay[i]/2);
+//     }
+//     return output;
+//   })
+//   const squarePhase2 = squarePhase1Half.map((subArray)=>makeSomeNoise(subArray));
 //   const outputPlus = swapXY(squarePhase2);
 //   return outputPlus;
 // }
 
-const noise2D = (x,y) =>{
-  let output=[];
-  for(let i = 0; i<x; i++){
-    output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(4))));
-  }
-  const squarePhase1 = swapXY(output);
-  const squarePhase1Half = squarePhase1.map((subRay)=>{
-    let output = [];
-    for(let i =0; i<subRay.length;i++){
-      output.push(subRay[i]/2);
-    }
-    return output;
-  })
-  const squarePhase2 = squarePhase1Half.map((subArray)=>makeSomeNoise(subArray));
-  const outputPlus = swapXY(squarePhase2);
-  return outputPlus;
-}
+// const noise2D = (x,y) =>{
+//   let output=[];
+//   for(let i = 0; i<x; i++){
+//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(4))));
+//   }
+//   console.log(output);
+//   const squarePhase1 = swapXY(output);
+//   const squarePhase1Half = squarePhase1.map((subRay)=>{
+//     let output = [];
+//     for(let i =0; i<subRay.length;i++){
+//       output.push(subRay[i]/2);
+//     }
+//     return output;
+//   })
+//   const squarePhase2 = squarePhase1Half.map((subArray)=>makeSomeNoise(subArray));
+//   const outputPlus = swapXY(squarePhase2);
+//   return outputPlus;
+// }
 
 //First Attempt, poort horizontal persistance
 // const noise2D = (x,y) =>{
@@ -99,8 +123,8 @@ const noise2D = (x,y) =>{
 
 const home = document.getElementById('container')
 home.style.boxSizing= 'border-box';
-const x = 50;
-const y= 40;
+const x = 160;
+const y= 80;
 home.style.height = 'fit-content';
 const q = (window.innerHeight*.8)/y;
 home.style.border = 'solid black 1em';
@@ -126,9 +150,37 @@ for(let i =0; i<(x*y);i++){
 
 // const convertToRGB = (decimal) => Math.round(decimal*255);
 
-const convertToRGB = (decimal) => Math.round(decimal*255);
+const convertToRGB = (decimal) => {
+  const bounds = [0.5,0.65,0.7,0.9,0.95];
+  let output;
+  if(decimal<bounds[0]){
+    output = 'darkBlue'
+  }else if(decimal>=bounds[0]&&decimal<bounds[1]){
+    output = 'royalblue';
+  }else if(decimal>=bounds[1]&&decimal<bounds[2]){
+    output = 'bisque';
+  }else if(decimal>=bounds[2]&&decimal<bounds[3]){
+    output = 'forestgreen';
+  }else if(decimal>=bounds[3]&&decimal<bounds[4]){
+    output = 'gray';
+  }else {
+    output = 'mintcream';
+  }
+  return output;
+};
 
+//Original code for monochrome
 
+// console.log(grid);
+// // 0:0,1,2,3,4,5,6,7
+// // 1:8,9,10,11,12,13,14
+// for(let j=0;j<y;j++){
+//   for(let k=0; k<x; k++){
+//     const value = convertToRGB(grid[k][j]);
+//     let focus = document.getElementById(((j*(x))+k));
+//     focus.style.backgroundColor = 'rgb('+value+','+value+','+value+')';
+//   }
+// }
 console.log(grid);
 // 0:0,1,2,3,4,5,6,7
 // 1:8,9,10,11,12,13,14
@@ -136,6 +188,6 @@ for(let j=0;j<y;j++){
   for(let k=0; k<x; k++){
     const value = convertToRGB(grid[k][j]);
     let focus = document.getElementById(((j*(x))+k));
-    focus.style.backgroundColor = 'rgb('+value+','+value+','+value+')';
+    focus.style.backgroundColor = value+'';
   }
 }
