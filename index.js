@@ -18,13 +18,13 @@ const pieceWise = (inputArray, newLength) => {
 
 const makeSomeNoise = (randomArray) =>{
   const Phase1a = pieceWise(randomArray, randomArray.length/8);
-  const Phase2a = pieceWise(randomArray, randomArray.length/5);
+  const Phase2a = pieceWise(randomArray, randomArray.length/4);
   const Phase3a = pieceWise(randomArray, randomArray.length/3);
   const Phase1b = pieceWise(Phase1a, randomArray.length);
   const Phase2b = pieceWise(Phase2a, randomArray.length);
   const Phase3b = pieceWise(Phase3a, randomArray.length);
   return Phase1b.map((p1, index)=>{
-    return parseFloat((p1+(Phase2b[index]*.4)+(Phase3b[index]*.2)+(randomArray[index]*.05)).toFixed(4));
+    return parseFloat((p1+(Phase2b[index]*.25)+(Phase3b[index]*.125)+(randomArray[index]*.05)).toFixed(4));
   }); 
 }
 
@@ -57,36 +57,36 @@ const swapXY = (array) =>{
 // }
 
 // good persistance horizontally but poor range
-const noise2D = (x,y) =>{
-  let output=[];
-  for(let i = 0; i<x; i++){
-    output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
-  }
-  const squarePhase1 = swapXY(output);
-  const squarePhase2 = squarePhase1.map((subArray)=>makeSomeNoise(subArray));
-  const outputPlus = swapXY(squarePhase2);
-  return outputPlus;
-}
-
-
-//poor range
 // const noise2D = (x,y) =>{
 //   let output=[];
 //   for(let i = 0; i<x; i++){
-//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(4))));
+//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
 //   }
 //   const squarePhase1 = swapXY(output);
-//   const squarePhase1Half = squarePhase1.map((subRay)=>{
-//     let output = [];
-//     for(let i =0; i<subRay.length;i++){
-//       output.push(subRay[i]/2);
-//     }
-//     return output;
-//   })
-//   const squarePhase2 = squarePhase1Half.map((subArray)=>makeSomeNoise(subArray));
+//   const squarePhase2 = squarePhase1.map((subArray)=>makeSomeNoise(subArray));
 //   const outputPlus = swapXY(squarePhase2);
 //   return outputPlus;
 // }
+
+
+//poor range
+const noise2D = (x,y) =>{
+  let output=[];
+  for(let i = 0; i<x; i++){
+    output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(4))));
+  }
+  const squarePhase1 = swapXY(output);
+  const squarePhase1Half = squarePhase1.map((subRay)=>{
+    let output = [];
+    for(let i =0; i<subRay.length;i++){
+      output.push(subRay[i]/2);
+    }
+    return output;
+  })
+  const squarePhase2 = squarePhase1Half.map((subArray)=>makeSomeNoise(subArray));
+  const outputPlus = swapXY(squarePhase2);
+  return outputPlus;
+}
 
 // const noise2D = (x,y) =>{
 //   let output=[];
@@ -123,8 +123,8 @@ const noise2D = (x,y) =>{
 
 const home = document.getElementById('container')
 home.style.boxSizing= 'border-box';
-const x = 160;
-const y= 80;
+const x = 128;
+const y= 64;
 home.style.height = 'fit-content';
 const q = (window.innerHeight*.8)/y;
 home.style.border = 'solid black 1em';
@@ -151,7 +151,7 @@ for(let i =0; i<(x*y);i++){
 // const convertToRGB = (decimal) => Math.round(decimal*255);
 
 const convertToRGB = (decimal) => {
-  const bounds = [0.5,0.65,0.7,0.9,0.95];
+  const bounds = [0.25,0.3,0.34,0.385,0.45];
   let output;
   if(decimal<bounds[0]){
     output = 'darkBlue'
