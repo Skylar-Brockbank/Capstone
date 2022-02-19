@@ -17,9 +17,9 @@ const pieceWise = (inputArray, newLength) => {
 }
 
 const makeSomeNoise = (randomArray) =>{
-  const Phase1a = pieceWise(randomArray, 3);
-  const Phase2a = pieceWise(randomArray, 4);
-  const Phase3a = pieceWise(randomArray, 5);
+  const Phase1a = pieceWise(randomArray, randomArray.length/8);
+  const Phase2a = pieceWise(randomArray, randomArray.length/5);
+  const Phase3a = pieceWise(randomArray, randomArray.length/3);
   const Phase1b = pieceWise(Phase1a, randomArray.length);
   const Phase2b = pieceWise(Phase2a, randomArray.length);
   const Phase3b = pieceWise(Phase3a, randomArray.length);
