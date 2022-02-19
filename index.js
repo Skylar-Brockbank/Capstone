@@ -129,10 +129,8 @@ home.style.height = 'fit-content';
 let q;
 if(window.innerWidth > window.innerHeight){
   q = (window.innerHeight*.8)/y;
-  alert('wide');
 }else{
   q = (window.innerWidth*0.7)/x;
-  alert('narrow');
 }
 document.querySelector('body').style.margin = '0';
 home.style.border = 'solid black 2px';
