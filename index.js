@@ -154,8 +154,6 @@ for(let i =0; i<(x*y);i++){
   home.append(formation);
 }
 
-// const convertToRGB = (decimal) => Math.round(decimal*255);
-
 const convertToRGB = (decimal) => {
   const bounds = [0.25,0.3,0.34,0.385,0.45];
   let output;
