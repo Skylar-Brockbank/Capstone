@@ -149,7 +149,8 @@ for(let i =0; i<(x*y);i++){
   formation.id = i;
   formation.style.width = ''+q+'px';
   formation.style.height = ''+q+'px';
-  formation.style.border = 'solid black 1px';
+  //formation.style.border = 'solid black 1px';
+  formation.style.border = 'none';
   home.style.margin= '0';
   home.append(formation);
 }

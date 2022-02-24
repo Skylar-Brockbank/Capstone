@@ -29,7 +29,6 @@ If I finish that, then I'll see about setting up live play options so that you c
 -procedurally generated events
 
 What additional tools, frameworks, libraries, APIs, or other resources will these additional features require?
--node.js
 -Firebase
 
 Is there anything else you'd like your instructor to know?
