@@ -13,7 +13,7 @@ const pieceWise = (inputArray, newLength) => {
     const b = inputArray[Math.floor(x)];
     outputArray.push(m*(x-Math.floor(x))+b);
   }
-  return outputArray.map((x)=> parseFloat(x.toFixed(2)));
+  return outputArray.map((x)=> parseFloat(x.toFixed(4)));
 }
 
 const makeSomeNoise = (randomArray) =>{
@@ -120,11 +120,20 @@ const noise2D = (x,y) =>{
 //   return outputPlus;
 // }
 
+const enhance = (mapIn,x,y) =>{
+  const phase1 = mapIn.map((line)=> pieceWise(line,y));
+  const phase2 = swapXY(phase1);
+  const phase3 = phase2.map((liney)=> pieceWise(liney,x));
+  const output = swapXY(phase3);
+  return output;
+}
+
 
 const home = document.getElementById('container')
 home.style.boxSizing= 'border-box';
-const x = 128;
-const y= 64;
+const x = 500;
+const y= 250;
+const noiseConstants = [80,60];
 home.style.height = 'fit-content';
 let q;
 if(window.innerWidth > window.innerHeight){
@@ -137,7 +146,7 @@ home.style.border = 'solid black 2px';
 home.style.width= 'fit-content';
 home.style.padding= '0';
 home.style.gridGap= '0';
-const grid = noise2D(x,y);
+const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
 
 console.log(home);
 
@@ -158,7 +167,7 @@ for(let i =0; i<(x*y);i++){
 // const convertToRGB = (decimal) => Math.round(decimal*255);
 
 const convertToRGB = (decimal) => {
-  const bounds = [0.25,0.3,0.34,0.385,0.45];
+  const bounds = [0.25,0.31,0.33,0.37,0.4,0.42,0.46];
   let output;
   if(decimal<bounds[0]){
     output = 'darkBlue'
@@ -167,9 +176,13 @@ const convertToRGB = (decimal) => {
   }else if(decimal>=bounds[1]&&decimal<bounds[2]){
     output = 'bisque';
   }else if(decimal>=bounds[2]&&decimal<bounds[3]){
-    output = 'forestgreen';
+    output = 'yellowgreen';
   }else if(decimal>=bounds[3]&&decimal<bounds[4]){
+    output = 'green';
+  }else if(decimal>=bounds[4]&&decimal<bounds[5]){
     output = 'gray';
+  }else if(decimal>=bounds[5]&&decimal<bounds[6]){
+    output = 'darkgray';
   }else {
     output = 'mintcream';
   }
@@ -188,7 +201,6 @@ const convertToRGB = (decimal) => {
 //     focus.style.backgroundColor = 'rgb('+value+','+value+','+value+')';
 //   }
 // }
-console.log(grid);
 // 0:0,1,2,3,4,5,6,7
 // 1:8,9,10,11,12,13,14
 for(let j=0;j<y;j++){
