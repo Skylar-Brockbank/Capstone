@@ -14,3 +14,9 @@ __**Streatchyest Goals**__
 * Player View
 * Individual Player Notes
 * User Waypoints
+
+__**Snappy Goals**__
+* Add Player Sheets
+* Add virtual dice
+* Stat tracking
+* Live encounter space
