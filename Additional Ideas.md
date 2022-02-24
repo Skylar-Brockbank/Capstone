@@ -9,3 +9,8 @@ __**Ideas**__
 __**Streatchier Goals**__
 * give the user the ability to add additional noise maps
 * give the user a table that they can use to controll the presentation of their custom noise maps
+
+__**Streatchyest Goals**__
+* Player View
+* Individual Player Notes
+* User Waypoints
