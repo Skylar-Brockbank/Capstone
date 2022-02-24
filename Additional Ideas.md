@@ -9,6 +9,7 @@ __**Ideas**__
 __**Streatchier Goals**__
 * give the user the ability to add additional noise maps
 * give the user a table that they can use to controll the presentation of their custom noise maps
+* cropping the map to the known world
 
 __**Streatchyest Goals**__
 * Player View
@@ -20,3 +21,12 @@ __**Snappy Goals**__
 * Add virtual dice
 * Stat tracking
 * Live encounter space
+
+__**
+* wind shadows
+* erosion
+* tectonic plate simulation
+* rivers
+* humidity zones
+* weather simulation
+* time passage
