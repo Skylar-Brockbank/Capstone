@@ -9,3 +9,5 @@
 * Watched a bunch of info on rain shadows
 * Reserached arctic biology
 * Wrote a checking function for making grids from separate cells (t%2==0)? right: left; (((t-(t%x))/x)%2==0)? top:bottom;
+* Reasearched global wind patterns
+* explored math around controlling the probability of noise
