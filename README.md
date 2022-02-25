@@ -11,3 +11,5 @@
 * Wrote a checking function for making grids from separate cells (t%2==0)? right: left; (((t-(t%x))/x)%2==0)? top:bottom;
 * Reasearched global wind patterns
 * explored math around controlling the probability of noise
+* Watched a video on sea and land breezes
+* Watched a video on continental drift and plate tectonics
