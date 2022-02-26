@@ -246,12 +246,9 @@ for(let i =0; i<(x*y);i++){
   home.append(formation);
 }
 
-<<<<<<< HEAD
-=======
 //=========================================================================
 //This code is here to apply colors to heights
 //=========================================================================
->>>>>>> main
 const convertToRGB = (decimal) => {
   const bounds = [0.25,0.31,0.33,0.37,0.4,0.42,0.46];
   let output;
