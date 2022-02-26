@@ -136,16 +136,18 @@ const enhance = (mapIn,x,y) =>{
 //=========================================================================================
 //These functions will read the map and tell you if you're in a rain shadow or not
 //=========================================================================================
+const trailOffConstant = 0.0004;
+
 const rainShadowsLeftToRight = (inputArray) =>{
   return inputArray.map((cell, index) => {
     if(index == 0){
-      if(inputArray[inputArray.length-1]>=cell){
+      if(inputArray[inputArray.length-1].elevation>=cell.elevation+trailOffConstant){
         return true;
       }else{
         return false;
       }
     }else{
-      if(inputArray[index-1]>=cell){
+      if(inputArray[index-1].elevation>=cell.elevation+trailOffConstant){
         return true;
       }else{
         return false;
@@ -156,13 +158,13 @@ const rainShadowsLeftToRight = (inputArray) =>{
 const rainShadowsRightToLeft = (inputArray) =>{
   return inputArray.map((cell, index) => {
     if(index == inputArray.length-1){
-      if(inputArray[0]>=cell){
+      if(inputArray[0].elevation>=cell.elevation+trailOffConstant){
         return true;
       }else{
         return false;
       }
     }else{
-      if(inputArray[index+1]>=cell){
+      if(inputArray[index+1].elevation>=cell.elevation+trailOffConstant){
         return true;
       }else{
         return false;
@@ -184,7 +186,7 @@ const callTheWind = (inputArray) =>{
 }
 
 //==========================================================================================
-//Add preipitation
+//Add precipitation
 //==========================================================================================
 const blessTheRains = (inputArray)=>{
   console.log(inputArray);
@@ -201,9 +203,9 @@ const blessTheRains = (inputArray)=>{
 //Add Temperature
 //==========================================================================================
 const bringTheHeat = (inputArray)=>{
-  const t = pieceWise([0,1,1,0], inputArray.length);
+  const tstep = 1/(inputArray.length/2);
   return inputArray.map((lat, index)=>{
-    const temp = t[index];
+    const temp = tstep*(inputArray.length-Math.abs((inputArray.length/2)-index));
     return lat.map((cell)=>{
       return {...cell, temperature: temp};
     });
@@ -214,12 +216,17 @@ const bringTheHeat = (inputArray)=>{
 //Apply Rain Shadows
 //==========================================================================================
 const applyRainShadows = (inputArray) =>{
+  console.log(inputArray);
   return inputArray.map((lat)=>{
     const shade = (lat[0].windZone == 0)? rainShadowsLeftToRight(lat):rainShadowsRightToLeft(lat);
+    console.log(lat);
+    console.log(shade);
     return lat.map((cell, index)=>{
       if(shade[index]){
-        return {...cell,precipitation:0};
+        const average = cell.precipitation/3;
+        return {...cell,precipitation:average};
       }else{
+        const average = (cell.precipitation+2)/3;
         return {...cell};
       }
     });
@@ -248,13 +255,14 @@ home.style.padding= '0';
 home.style.gridGap= '0';
 const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
 //testing factor adding functions
-const gridPlus1 = callTheWind(grid);
+const gridPlus1 = callTheWind(swapXY(grid));
 const gridPlus2 = blessTheRains(gridPlus1);
 const gridPlus3 = bringTheHeat(gridPlus2);
 const gridPlus4 = applyRainShadows(gridPlus3);
 // console.log(gridPlus1);
 // console.log(gridPlus2);
-console.log(gridPlus4);
+const gridPlus5=swapXY(gridPlus4);
+console.log(gridPlus5);
 
 // console.log(home);
 
@@ -306,6 +314,82 @@ const convertToRGB = (decimal) => {
   }
   return output;
 };
+//============================================================
+//Updated for use with biome props
+//============================================================
+const convertObjectToRGB = (cell) => {
+  const bounds = [0.25,0.31,0.33,0.37,0.4,0.42,0.46];
+  const decimal =cell.elevation;
+  let output;
+  if(decimal<bounds[0]){
+    output = 'darkBlue'
+  }else if(decimal>=bounds[0]&&decimal<bounds[1]){
+    output = 'royalblue';
+  }else if(decimal>=bounds[1]&&decimal<bounds[2]){
+    output = 'bisque';
+  }else if(decimal>=bounds[2]&&decimal<bounds[3]){
+    output = convertToBiome(cell,1);
+  }else if(decimal>=bounds[3]&&decimal<bounds[4]){
+    output = convertToBiome(cell,0);
+  }else if(decimal>=bounds[4]&&decimal<bounds[5]){
+    output = 'gray';
+  }else if(decimal>=bounds[5]&&decimal<bounds[6]){
+    output = 'darkgray';
+  }else {
+    output = 'mintcream';
+  }
+  return output;
+};
+
+//==========================================================================================
+//Return a style object for a given cell
+//==========================================================================================
+const convertToBiome = (target,set)=>{
+  const tempRanges = [0.4,0.5];
+  const precipRanges = [0,0.4];
+  var temp;
+  var precip;
+
+  const desert = 'bisque';
+  const grassland = 'yellowgreen';
+  const savanah = "#ADFF2F";
+  const forrest = 'green';
+  const tundra = 'aliceblue';
+  const styleMatrix = [[
+    //cold(dry,med,wet)
+    [tundra,tundra,tundra],
+    //ttemparate(dry,med,wet)
+    [desert,grassland,forrest],
+    //hot(dry,med,wet)
+    [desert,savanah,forrest]
+  ],
+  [
+    //cold(dry,med,wet)
+    [tundra,tundra,tundra],
+    //ttemparate(dry,med,wet)
+    [desert,grassland,grassland],
+    //hot(dry,med,wet)
+    [desert,savanah,savanah]
+  ]];
+
+  if(target.temperature<=tempRanges[0]){
+    temp=0;
+  }else if(target.temperature>tempRanges[0]&&target.temperature<tempRanges[1]){
+    temp=1;
+  }else{
+    temp=2;
+  }
+
+  if(target.precipitation <= precipRanges[0]){
+    precip=0;
+  }else if(target.precipitation>precipRanges[0]&&target.precipitation<precipRanges[1]){
+    precip=1;
+  }else{
+    precip=2;
+  }
+  return styleMatrix[set][temp][precip];
+}
+
 
 //Original code for monochrome
 
@@ -327,7 +411,8 @@ const convertToRGB = (decimal) => {
 //======================================================================
 for(let j=0;j<y;j++){
   for(let k=0; k<x; k++){
-    const value = convertToRGB(grid[k][j]);
+    // const value = convertToRGB(grid[k][j]);
+    const value = convertObjectToRGB(gridPlus5[k][j]);
     let focus = document.getElementById(((j*(x))+k));
     focus.style.backgroundColor = value+'';
   }
