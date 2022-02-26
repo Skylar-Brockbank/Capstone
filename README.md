@@ -14,3 +14,4 @@
 * Watched a video on sea and land breezes
 * Watched a video on continental drift and plate tectonics
 * Did research into how humidity and temperature affect climate
+* Wrote out notes on how to control continent generation
