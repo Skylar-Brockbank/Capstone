@@ -120,6 +120,10 @@ const noise2D = (x,y) =>{
 //   return outputPlus;
 // }
 
+
+//=========================================================================================
+//This function increases the resolution of a map (kinda like the zoom and enhance crap they pull on law enforcement proceedurals)
+//=========================================================================================
 const enhance = (mapIn,x,y) =>{
   const phase1 = mapIn.map((line)=> pieceWise(line,y));
   const phase2 = swapXY(phase1);
@@ -129,6 +133,47 @@ const enhance = (mapIn,x,y) =>{
 }
 
 
+//=========================================================================================
+//This function will read the map left to right and tell you if you're in a rain shadow or not
+//=========================================================================================
+const rainShadowsLeftToRight = (inputArray) =>{
+  return inputArray.map((cell, index) => {
+    if(index == 0){
+      if(inputArray[inputArray.length-1]>=cell){
+        return true;
+      }else{
+        return false;
+      }
+    }else{
+      if(inputArray[index-1]>=cell){
+        return true;
+      }else{
+        return false;
+      }
+    }
+  });
+}
+const rainShadowsRightToLeft = (inputArray) =>{
+  return inputArray.map((cell, index) => {
+    if(index == inputArray.length-1){
+      if(inputArray[0]>=cell){
+        return true;
+      }else{
+        return false;
+      }
+    }else{
+      if(inputArray[index+1]>=cell){
+        return true;
+      }else{
+        return false;
+      }
+    }
+  });
+}
+
+//==========================================================================================
+// Drawing things to the screen
+//==========================================================================================
 const home = document.getElementById('container')
 home.style.boxSizing= 'border-box';
 const x = 500;
@@ -164,8 +209,18 @@ for(let i =0; i<(x*y);i++){
   home.append(formation);
 }
 
+//In this area you'll need to add an onclick property(all lowercase for onclick to the formation object that referres to a form that contains controlls for the style)
+//On the form you will want to include
+//  -color
+//  -resource data
+//  -encounter data
+
 // const convertToRGB = (decimal) => Math.round(decimal*255);
 
+
+//=========================================================================
+//This code is here to apply colors to heights
+//=========================================================================
 const convertToRGB = (decimal) => {
   const bounds = [0.25,0.31,0.33,0.37,0.4,0.42,0.46];
   let output;
@@ -203,6 +258,10 @@ const convertToRGB = (decimal) => {
 // }
 // 0:0,1,2,3,4,5,6,7
 // 1:8,9,10,11,12,13,14
+
+//======================================================================
+//This stuff applies all the styles
+//======================================================================
 for(let j=0;j<y;j++){
   for(let k=0; k<x; k++){
     const value = convertToRGB(grid[k][j]);
