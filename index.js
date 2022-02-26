@@ -111,11 +111,11 @@ const blessTheRains = (inputArray)=>{
 //Add Temperature
 //==========================================================================================
 const bringTheHeat = (inputArray)=>{
-  const tstep = 1/(inputArray.length/2);
   return inputArray.map((lat, index)=>{
+    const tstep = 1/((inputArray.length/2));
     const temp = tstep*((inputArray.length/2)-Math.abs((inputArray.length/2)-index));
     return lat.map((cell)=>{
-      return {...cell, temperature: temp};
+      return {...cell, temperature: temp+(Math.random()/50)};
     });
   });
 }
@@ -160,19 +160,19 @@ const rainShadowsRightToLeft = (inputArray) =>{
   });
 }
 const decayDistance = 20;
-const inShadow = (inputArray) => {
+const inShadow = (inputArray,elevation) => {
   const direction = inputArray[0].windZone;
   return inputArray.map((cell,index)=>{
     if(direction === 0){
       for(let i = 0; i<decayDistance;i++){
-        if(inputArray.at(index-i).elevation >= 0.4){
+        if(inputArray.at(index-i).elevation >= elevation){
           return true;
         }
       }
       return false;
     }else{
         for(let i = 0; i<decayDistance;i++){
-          if(inputArray[(index+i)%(inputArray.length-1)].elevation >=0.4){
+          if(inputArray[(index+i)%(inputArray.length-1)].elevation >=elevation){
               return true;
             }
         }
@@ -181,19 +181,18 @@ const inShadow = (inputArray) => {
   });
 }
 
+
 //==========================================================================================
 //Apply Rain Shadows
 //==========================================================================================
-const applyRainShadows = (inputArray) =>{
+const applyRainShadows = (inputArray, elevation) =>{
 
   return inputArray.map((lat)=>{
-    const shade = inShadow(lat);
-    console.log(shade);
-    console.log(shade.includes(true));
+    const shade = inShadow(lat,elevation);
     // const shade = (lat[0].windZone == 0)? rainShadowsLeftToRight(lat):rainShadowsRightToLeft(lat);
     return lat.map((cell, index)=>{
       if(shade[index]){
-        const average = cell.precipitation/2;
+        const average = cell.precipitation/1.2;
         return {...cell,precipitation:average,shade:true};
       }else{
         const average = (cell.precipitation+1)/2;
@@ -228,7 +227,7 @@ const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
 const gridPlus1 = callTheWind(swapXY(grid));
 const gridPlus2 = blessTheRains(gridPlus1);
 const gridPlus3 = bringTheHeat(gridPlus2);
-const gridPlus4 = applyRainShadows(gridPlus3);
+const gridPlus4 = applyRainShadows(gridPlus3,0.42);
 
 const gridPlus5=swapXY(gridPlus4);
 console.log(gridPlus5);
@@ -314,9 +313,10 @@ const convertToBiome = (target,set)=>{
   const forrest = 'green';
   const tundra = 'aliceblue';
   const jungle = '#40a829';
+  const taiga = '#008080';
   const styleMatrix = [[
     //cold(dry,med,wet)
-    [tundra,tundra,tundra],
+    [tundra,tundra,taiga],
     //ttemparate(dry,med,wet)
     [desert,grassland,forrest],
     //hot(dry,med,wet)
