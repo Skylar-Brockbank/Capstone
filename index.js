@@ -134,7 +134,7 @@ const enhance = (mapIn,x,y) =>{
 
 
 //=========================================================================================
-//This function will read the map left to right and tell you if you're in a rain shadow or not
+//These functions will read the map and tell you if you're in a rain shadow or not
 //=========================================================================================
 const rainShadowsLeftToRight = (inputArray) =>{
   return inputArray.map((cell, index) => {
@@ -172,6 +172,45 @@ const rainShadowsRightToLeft = (inputArray) =>{
 }
 
 //==========================================================================================
+//Assign wind direction returns 2d array of {elevation, windZone} objects
+//==========================================================================================
+const callTheWind = (inputArray) =>{
+  return inputArray.map((latitude, index)=>{
+    const windZone = Math.floor(index/(inputArray.length/6));
+    return latitude.map((cell)=>{
+      return {elevation:cell, windZone:windZone};
+    })
+  })
+}
+
+//==========================================================================================
+//Add preipitation
+//==========================================================================================
+const blessTheRains = (inputArray)=>{
+  console.log(inputArray);
+  const p = pieceWise([0,1,0,1,0,1,0],inputArray.length);
+  return inputArray.map((lat,index)=>{
+    const precip = p[index];
+    return lat.map((cell)=>{
+      return {...cell, precipitation: precip};
+    });
+  });
+}
+
+//==========================================================================================
+//Add Temperature
+//==========================================================================================
+const bringTheHeat = (inputArray)=>{
+  const t = pieceWise([0,1,1,0], inputArray.length);
+  return inputArray.map((lat, index)=>{
+    const temp = t[index];
+    return lat.map((cell)=>{
+      return {...cell, temperature: temp};
+    });
+  });
+}
+
+//==========================================================================================
 // Drawing things to the screen
 //==========================================================================================
 const home = document.getElementById('container')
@@ -192,8 +231,15 @@ home.style.width= 'fit-content';
 home.style.padding= '0';
 home.style.gridGap= '0';
 const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
+//testing factor adding functions
+const gridPlus1 = callTheWind(grid);
+const gridPlus2 = blessTheRains(gridPlus1);
+const gridPlus3 = bringTheHeat(gridPlus2);
+// console.log(gridPlus1);
+// console.log(gridPlus2);
+console.log(gridPlus3);
 
-console.log(home);
+// console.log(home);
 
 home.style.display = 'grid';
 home.style.gridTemplateColumns = 'repeat('+ x +', 1fr)';
