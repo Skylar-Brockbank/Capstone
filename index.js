@@ -211,6 +211,22 @@ const bringTheHeat = (inputArray)=>{
 }
 
 //==========================================================================================
+//Apply Rain Shadows
+//==========================================================================================
+const applyRainShadows = (inputArray) =>{
+  return inputArray.map((lat)=>{
+    const shade = (lat[0].windZone == 0)? rainShadowsLeftToRight(lat):rainShadowsRightToLeft(lat);
+    return lat.map((cell, index)=>{
+      if(shade[index]){
+        return {...cell,precipitation:0};
+      }else{
+        return {...cell};
+      }
+    });
+  });
+}
+
+//==========================================================================================
 // Drawing things to the screen
 //==========================================================================================
 const home = document.getElementById('container')
@@ -235,9 +251,10 @@ const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
 const gridPlus1 = callTheWind(grid);
 const gridPlus2 = blessTheRains(gridPlus1);
 const gridPlus3 = bringTheHeat(gridPlus2);
+const gridPlus4 = applyRainShadows(gridPlus3);
 // console.log(gridPlus1);
 // console.log(gridPlus2);
-console.log(gridPlus3);
+console.log(gridPlus4);
 
 // console.log(home);
 
