@@ -160,8 +160,8 @@ const rainShadowsRightToLeft = (inputArray) =>{
     }
   });
 }
-const decayDistance = 10;
-const inShadow = (inputArray,elevation) => {
+
+const inShadow = (inputArray,elevation,decayDistance) => {
   const direction = inputArray[0].windZone;
   return inputArray.map((cell,index)=>{
     if(direction === 0){
@@ -181,7 +181,7 @@ const inShadow = (inputArray,elevation) => {
     }
   });
 }
-const reverseShadow = (inputArray,elevation) => {
+const reverseShadow = (inputArray,elevation,decayDistance) => {
   const direction = inputArray[0].windZone;
   return inputArray.map((cell,index)=>{
     if(direction === 1){
@@ -208,25 +208,38 @@ const reverseShadow = (inputArray,elevation) => {
 //Apply Rain Shadows
 //==========================================================================================
 const applyRainShadows = (inputArray, elevation) =>{
-
-  return inputArray.map((lat)=>{
-    const shade = inShadow(lat,elevation);
-    const reverseShade = reverseShadow(lat, elevation);
+  const decayDistance = 4;
+  const stage1 = inputArray.map((lat)=>{
+    const shade = inShadow(lat,elevation,decayDistance);
+    const reverseShade = reverseShadow(lat, elevation,decayDistance);
     // const shade = (lat[0].windZone == 0)? rainShadowsLeftToRight(lat):rainShadowsRightToLeft(lat);
     return lat.map((cell, index)=>{
       if(shade[index]){
-        const average = cell.precipitation/1.2;
-        return {...cell,precipitation:average,shade:true};
+        const average = cell.precipitation/1.5;
+        return {...cell,precipitation:average};
       }else if(reverseShade[index]){
         const average = (cell.precipitation+2)/3;
-        return {...cell,precipitation:average, shade:false};
+        return {...cell,precipitation:average};
       }else{
         const average = (cell.precipitation);
-        return {...cell,precipitation:average, shade:false};
+        return {...cell,precipitation:average};
+      }
+    });
+  });
+  return stage1.map((lat)=>{
+    const secondShade = inShadow(lat, 0.42,(decayDistance*3));
+    return lat.map((cell, index)=>{
+      if(secondShade[index]){
+        const average = cell.precipitation/2;
+        return {...cell,precipitation:average};
+      }else{
+        const average = (cell.precipitation);
+        return {...cell,precipitation:average};
       }
     });
   });
 }
+
 
 //==========================================================================================
 // Drawing things to the screen
@@ -335,7 +348,8 @@ const convertToBiome = (target,set)=>{
 
   const desert = 'bisque';
   const grassland = 'yellowgreen';
-  const savanah = "#ADFF2F";
+  const savanah = "#a6c466";
+  // const savanah = "#ADFF2F";
   const forrest = 'green';
   const tundra = 'aliceblue';
   const jungle = '#40a829';
