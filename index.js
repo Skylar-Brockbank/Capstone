@@ -47,29 +47,8 @@ const swapXY = (array) =>{
   }
   return output;
 }
-//Original Base with not persistance horizonatally
-// const noise2D = (x,y) =>{
-//   let output=[];
-//   for(let i = 0; i<x; i++){
-//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
-//   }
-//   return output;
-// }
-
-// good persistance horizontally but poor range
-// const noise2D = (x,y) =>{
-//   let output=[];
-//   for(let i = 0; i<x; i++){
-//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
-//   }
-//   const squarePhase1 = swapXY(output);
-//   const squarePhase2 = squarePhase1.map((subArray)=>makeSomeNoise(subArray));
-//   const outputPlus = swapXY(squarePhase2);
-//   return outputPlus;
-// }
 
 
-//poor range
 const noise2D = (x,y) =>{
   let output=[];
   for(let i = 0; i<x; i++){
@@ -88,39 +67,6 @@ const noise2D = (x,y) =>{
   return outputPlus;
 }
 
-// const noise2D = (x,y) =>{
-//   let output=[];
-//   for(let i = 0; i<x; i++){
-//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(4))));
-//   }
-//   console.log(output);
-//   const squarePhase1 = swapXY(output);
-//   const squarePhase1Half = squarePhase1.map((subRay)=>{
-//     let output = [];
-//     for(let i =0; i<subRay.length;i++){
-//       output.push(subRay[i]/2);
-//     }
-//     return output;
-//   })
-//   const squarePhase2 = squarePhase1Half.map((subArray)=>makeSomeNoise(subArray));
-//   const outputPlus = swapXY(squarePhase2);
-//   return outputPlus;
-// }
-
-//First Attempt, poort horizontal persistance
-// const noise2D = (x,y) =>{
-//   let output=[];
-//   for(let i = 0; i<x; i++){
-//     output.push(makeSomeNoise(randArray(y)).map((v)=>parseFloat((v/175).toFixed(2))));
-//   }
-//   const coNoise=(makeSomeNoise(randArray(x)).map((v)=>parseFloat((v/175).toFixed(2))));
-//   const outputPlus = coNoise.map((cNoise,index)=>{
-//     return output[index].map((noise)=>parseFloat(((2*noise)+(cNoise))/3)-.09)
-//   });
-//   return outputPlus;
-// }
-
-
 //=========================================================================================
 //This function increases the resolution of a map (kinda like the zoom and enhance crap they pull on law enforcement proceedurals)
 //=========================================================================================
@@ -133,10 +79,51 @@ const enhance = (mapIn,x,y) =>{
 }
 
 
+
+//==========================================================================================
+//Assign wind direction returns 2d array of {elevation, windZone} objects
+//==========================================================================================
+const callTheWind = (inputArray) =>{
+  const pat = [0,1,0];
+  return inputArray.map((latitude, index)=>{
+    const windZone = Math.floor(index/(inputArray.length/6));
+    return latitude.map((cell)=>{
+      return {elevation:cell, windZone:pat[windZone%3]};
+    })
+  })
+}
+
+//==========================================================================================
+//Add precipitation
+//==========================================================================================
+const blessTheRains = (inputArray)=>{
+  
+  const p = pieceWise([0,1,0,1,0,1,0],inputArray.length);
+  return inputArray.map((lat,index)=>{
+    const precip = p[index];
+    return lat.map((cell)=>{
+      return {...cell, precipitation: precip};
+    });
+  });
+}
+
+//==========================================================================================
+//Add Temperature
+//==========================================================================================
+const bringTheHeat = (inputArray)=>{
+  const tstep = 1/(inputArray.length/2);
+  return inputArray.map((lat, index)=>{
+    const temp = tstep*((inputArray.length/2)-Math.abs((inputArray.length/2)-index));
+    return lat.map((cell)=>{
+      return {...cell, temperature: temp};
+    });
+  });
+}
+
 //=========================================================================================
 //These functions will read the map and tell you if you're in a rain shadow or not
 //=========================================================================================
-const trailOffConstant = 0.0004;
+const trailOffConstant = 0.001;
 
 const rainShadowsLeftToRight = (inputArray) =>{
   return inputArray.map((cell, index) => {
@@ -172,43 +159,25 @@ const rainShadowsRightToLeft = (inputArray) =>{
     }
   });
 }
-
-//==========================================================================================
-//Assign wind direction returns 2d array of {elevation, windZone} objects
-//==========================================================================================
-const callTheWind = (inputArray) =>{
-  return inputArray.map((latitude, index)=>{
-    const windZone = Math.floor(index/(inputArray.length/6));
-    return latitude.map((cell)=>{
-      return {elevation:cell, windZone:windZone};
-    })
-  })
-}
-
-//==========================================================================================
-//Add precipitation
-//==========================================================================================
-const blessTheRains = (inputArray)=>{
-  console.log(inputArray);
-  const p = pieceWise([0,1,0,1,0,1,0],inputArray.length);
-  return inputArray.map((lat,index)=>{
-    const precip = p[index];
-    return lat.map((cell)=>{
-      return {...cell, precipitation: precip};
-    });
-  });
-}
-
-//==========================================================================================
-//Add Temperature
-//==========================================================================================
-const bringTheHeat = (inputArray)=>{
-  const tstep = 1/(inputArray.length/2);
-  return inputArray.map((lat, index)=>{
-    const temp = tstep*(inputArray.length-Math.abs((inputArray.length/2)-index));
-    return lat.map((cell)=>{
-      return {...cell, temperature: temp};
-    });
+const decayDistance = 20;
+const inShadow = (inputArray) => {
+  const direction = inputArray[0].windZone;
+  return inputArray.map((cell,index)=>{
+    if(direction === 0){
+      for(let i = 0; i<decayDistance;i++){
+        if(inputArray.at(index-i).elevation >= 0.4){
+          return true;
+        }
+      }
+      return false;
+    }else{
+        for(let i = 0; i<decayDistance;i++){
+          if(inputArray[(index+i)%(inputArray.length-1)].elevation >=0.4){
+              return true;
+            }
+        }
+        return false;
+    }
   });
 }
 
@@ -216,18 +185,19 @@ const bringTheHeat = (inputArray)=>{
 //Apply Rain Shadows
 //==========================================================================================
 const applyRainShadows = (inputArray) =>{
-  console.log(inputArray);
+
   return inputArray.map((lat)=>{
-    const shade = (lat[0].windZone == 0)? rainShadowsLeftToRight(lat):rainShadowsRightToLeft(lat);
-    console.log(lat);
+    const shade = inShadow(lat);
     console.log(shade);
+    console.log(shade.includes(true));
+    // const shade = (lat[0].windZone == 0)? rainShadowsLeftToRight(lat):rainShadowsRightToLeft(lat);
     return lat.map((cell, index)=>{
       if(shade[index]){
-        const average = cell.precipitation/3;
-        return {...cell,precipitation:average};
+        const average = cell.precipitation/2;
+        return {...cell,precipitation:average,shade:true};
       }else{
-        const average = (cell.precipitation+2)/3;
-        return {...cell};
+        const average = (cell.precipitation+1)/2;
+        return {...cell,precipitation:average, shade:false};
       }
     });
   });
@@ -259,12 +229,9 @@ const gridPlus1 = callTheWind(swapXY(grid));
 const gridPlus2 = blessTheRains(gridPlus1);
 const gridPlus3 = bringTheHeat(gridPlus2);
 const gridPlus4 = applyRainShadows(gridPlus3);
-// console.log(gridPlus1);
-// console.log(gridPlus2);
+
 const gridPlus5=swapXY(gridPlus4);
 console.log(gridPlus5);
-
-// console.log(home);
 
 home.style.display = 'grid';
 home.style.gridTemplateColumns = 'repeat('+ x +', 1fr)';
@@ -279,15 +246,6 @@ for(let i =0; i<(x*y);i++){
   home.style.margin= '0';
   home.append(formation);
 }
-
-//In this area you'll need to add an onclick property(all lowercase for onclick to the formation object that referres to a form that contains controlls for the style)
-//On the form you will want to include
-//  -color
-//  -resource data
-//  -encounter data
-
-// const convertToRGB = (decimal) => Math.round(decimal*255);
-
 
 //=========================================================================
 //This code is here to apply colors to heights
@@ -345,8 +303,8 @@ const convertObjectToRGB = (cell) => {
 //Return a style object for a given cell
 //==========================================================================================
 const convertToBiome = (target,set)=>{
-  const tempRanges = [0.4,0.5];
-  const precipRanges = [0,0.4];
+  const tempRanges = [0.3,0.6];
+  const precipRanges = [0.1,0.5];
   var temp;
   var precip;
 
@@ -355,6 +313,7 @@ const convertToBiome = (target,set)=>{
   const savanah = "#ADFF2F";
   const forrest = 'green';
   const tundra = 'aliceblue';
+  const jungle = '#40a829';
   const styleMatrix = [[
     //cold(dry,med,wet)
     [tundra,tundra,tundra],
@@ -369,7 +328,7 @@ const convertToBiome = (target,set)=>{
     //ttemparate(dry,med,wet)
     [desert,grassland,grassland],
     //hot(dry,med,wet)
-    [desert,savanah,savanah]
+    [desert,savanah,jungle]
   ]];
 
   if(target.temperature<=tempRanges[0]){
@@ -390,22 +349,6 @@ const convertToBiome = (target,set)=>{
   return styleMatrix[set][temp][precip];
 }
 
-
-//Original code for monochrome
-
-// console.log(grid);
-// // 0:0,1,2,3,4,5,6,7
-// // 1:8,9,10,11,12,13,14
-// for(let j=0;j<y;j++){
-//   for(let k=0; k<x; k++){
-//     const value = convertToRGB(grid[k][j]);
-//     let focus = document.getElementById(((j*(x))+k));
-//     focus.style.backgroundColor = 'rgb('+value+','+value+','+value+')';
-//   }
-// }
-// 0:0,1,2,3,4,5,6,7
-// 1:8,9,10,11,12,13,14
-
 //======================================================================
 //This stuff applies all the styles
 //======================================================================
@@ -415,5 +358,11 @@ for(let j=0;j<y;j++){
     const value = convertObjectToRGB(gridPlus5[k][j]);
     let focus = document.getElementById(((j*(x))+k));
     focus.style.backgroundColor = value+'';
+    // if(gridPlus5[k][j].shade){
+    //   focus.style.backgroundColor = 'yellow';
+    // }
+    // if(gridPlus5[k][j].windZone==0){
+    //   focus.style.borderRight = 'solid black 1px';
+    // }
   }
 }
