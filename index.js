@@ -281,16 +281,8 @@ const applyRainShadows = (inputArray, elevation) =>{
 //   home.append(formation);
 // }
 
-//=========================================================================
-//This function will take the mouse position and convert it from a
-//continuous value to a discreet value
-//=========================================================================
 
-const quantizeMouse = (x,y,element) => {
-  var target = element.getBoundingClientRect();
 
-  return({x:x,y:y});
-}
 //=========================================================================
 //Download Canvas
 //=========================================================================
@@ -470,8 +462,10 @@ for(let j=0;j<y;j++){
   }
 }
 
+
+
 //===========================================================================
-//scrolling zoom
+//map window mouse position to variable
 //===========================================================================
 
 document.addEventListener("mousemove", event =>{
@@ -491,45 +485,67 @@ const getCanvasPos = (mousePos) => {
 const zoomElement = document.querySelector("#screen");
 let zoom = 1;
 let mousePos = {x:0,y:0};
+let cMousePos = {x:0,y:0};
 let panning;
-const cx = screen.width/2;
-const cy = screen.height/2;
-
-
-  brush.beginPath();
-  brush.fillStyle = "red";
-  brush.fillRect(cx-10,cy-10,10,10);
-  brush.stroke();
-
+let currentColor = "red";
+let drawing = false;
 
   var pointX = 0,
       pointY = 0,
       start = {x:0,y:0};
 
+
+//=========================================================================
+//This function will take the mouse position and convert it from a
+//continuous value to a discreet value
+//=========================================================================
+  const quantizeMouse = () =>{
+    let t = getCanvasPos(mousePos);
+    return {x:Math.floor(t.x/q)*q,y:Math.floor(t.y/q)*q};
+
+  }
+
+  //==================================================================================
+  //This sets the css properties for the target object
+  //==================================================================================
   const setTransform = (target) =>{
     target.style.transform = `translate(${pointX}px, ${pointY}px) scale(${zoom})`;
   }
 
+  //==================================================================================
+  //Handles clicks, if shift is down it's pan, if not it's draw
+  //==================================================================================
   zoomElement.onmousedown = function (e) {
     e.preventDefault();
     if(e.shiftKey){
       start = { x: e.clientX - pointX, y: e.clientY - pointY };
       panning = true;
     }else{
-      const marker = getCanvasPos(mousePos);
-      console.log(marker);
-      brush.beginPath();
-      brush.fillStyle = "red";
-      brush.fillRect(marker.x,marker.y,10,10);
-      brush.stroke();
+      drawing = true;
+      const marker = quantizeMouse();
+      drawSquare(marker,currentColor);
     }
   }
   zoomElement.onmouseup = function (e) {
     panning = false;
+    drawing = false;
   }
+  const drawSquare = (marker, color) =>{
+    brush.beginPath();
+    brush.fillStyle = color;
+    brush.fillRect(marker.x,marker.y,1*q,1*q);
+    brush.stroke();
+  }
+
+  //==================================================================================
+  //this section handles the actual panning logic
+  //==================================================================================
   zoomElement.onmousemove = function (e) {
     e.preventDefault();
+    cMousePos.x = e.clientX;
+    cMousePos.y = e.clientY;
     if (!panning) {
+      if(drawing)drawSquare(quantizeMouse(),currentColor);
       return;
     }
     pointX = (e.clientX - start.x);
@@ -537,6 +553,9 @@ const cy = screen.height/2;
     setTransform(zoomElement);
   }
 
+  //==================================================================================
+  // This section handles scrolling zoom
+  //==================================================================================
   zoomElement.onwheel = (event)=>{
     event.preventDefault();
     let xs = (event.clientX - pointX)/zoom;
@@ -552,18 +571,3 @@ const cy = screen.height/2;
     }
     setTransform(zoomElement);
   }
-
-// document.addEventListener("wheel", (event) => {
-//   const container = document.getElementById('container');
-//   const zoomRate = 0.1;
-//   if(event.deltaY<0){
-//     zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
-//     // zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${((zoom*target.x)-target.x)}px) translateY(${((zoom*target.y)-target.y)}px)`;
-//     zoom = parseFloat(zoom.toFixed(2));
-//   } else {
-//     zoomElement.style.transform=`scale(${(zoom-zoomRate>=1? zoom -= zoomRate:zoom =zoom)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
-//   }
-//   if(zoom==1){
-//     zoomElement.style.transform=`translate(0,0) scale(${zoom})`;
-//   }
-// })
