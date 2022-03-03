@@ -473,8 +473,23 @@ for(let j=0;j<y;j++){
 //===========================================================================
 //scrolling zoom
 //===========================================================================
+
+document.addEventListener("mousemove", event =>{
+  mousePos.x = event.x;
+  mousePos.y = event.y;
+})
+
+const getCanvasPos = (mousePos) => {
+  const screen = document.getElementById('screen');
+  var rect = screen.getBoundingClientRect();
+  let scaleX = screen.width/rect.width;
+  let scaleY = screen.height/rect.height;
+  return {x:(mousePos.x-rect.left)*scaleX, y:(mousePos.y-rect.top)*scaleY};
+}
+
 const zoomElement = document.querySelector("#screen");
 let zoom = 1;
+let mousePos = {x:0,y:0};
 
 document.addEventListener("wheel", (event) => {
   if(event.deltaY<0){
@@ -482,4 +497,11 @@ document.addEventListener("wheel", (event) => {
   } else {
     zoomElement.style.transform=`scale(${(zoom>0.4? zoom -= 0.3:zoom =zoom)})`;
   }
+})
+document.addEventListener("click",()=>{
+  const marker = getCanvasPos(mousePos);
+  brush.beginPath();
+  brush.fillStyle = "red";
+  brush.fillRect(marker.x,marker.y,10,10);
+  brush.stroke();
 })
