@@ -1,0 +1,16 @@
+body {
+  /* height: 100vh; */
+  margin: 0;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+}
+
+canvas {
+  z-index: -1;
+}
+
+#container {
+  height: 80vh;
+  overflow: hidden;
+}

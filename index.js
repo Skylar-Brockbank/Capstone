@@ -240,50 +240,70 @@ const applyRainShadows = (inputArray, elevation) =>{
   });
 }
 
+// const home = document.getElementById('container')
+// home.style.boxSizing= 'border-box';
+// const x = 500;
+// const y= 250;
+// const noiseConstants = [80,60];
+// home.style.height = 'fit-content';
+// let q;
+// if(window.innerWidth > window.innerHeight){
+//   q = (window.innerHeight)/y;
+// }else{
+//   q = (window.innerWidth)/x;
+// }
+// document.querySelector('body').style.margin = '0';
+// home.style.border = 'solid black 2px';
+// home.style.width= 'fit-content';
+// home.style.padding= '0';
+// home.style.gridGap= '0';
+// const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
+// //testing factor adding functions
+// const gridPlus1 = callTheWind(swapXY(grid));
+// const gridPlus2 = blessTheRains(gridPlus1);
+// const gridPlus3 = bringTheHeat(gridPlus2);
+// const gridPlus4 = applyRainShadows(gridPlus3,0.4);
 
-//==========================================================================================
-// Drawing things to the screen
-//==========================================================================================
-const home = document.getElementById('container')
-home.style.boxSizing= 'border-box';
-const x = 500;
-const y= 250;
-const noiseConstants = [80,60];
-home.style.height = 'fit-content';
-let q;
-if(window.innerWidth > window.innerHeight){
-  q = (window.innerHeight*.8)/y;
-}else{
-  q = (window.innerWidth*0.7)/x;
+// const gridPlus5=swapXY(gridPlus4);
+// console.log(gridPlus5);
+
+// home.style.display = 'grid';
+// home.style.gridTemplateColumns = 'repeat('+ x +', 1fr)';
+
+// for(let i =0; i<(x*y);i++){
+//   let formation = document.createElement('div');
+//   formation.id = i;
+//   formation.style.width = ''+q+'px';
+//   formation.style.height = ''+q+'px';
+//   //formation.style.border = 'solid black 1px';
+//   formation.style.border = 'none';
+//   home.style.margin= '0';
+//   home.append(formation);
+// }
+
+//=========================================================================
+//This function will take the mouse position and convert it from a
+//continuous value to a discreet value
+//=========================================================================
+
+const quantizeMouse = (x,y,element) => {
+  var target = element.getBoundingClientRect();
+
+  return({x:x,y:y});
 }
-document.querySelector('body').style.margin = '0';
-home.style.border = 'solid black 2px';
-home.style.width= 'fit-content';
-home.style.padding= '0';
-home.style.gridGap= '0';
-const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
-//testing factor adding functions
-const gridPlus1 = callTheWind(swapXY(grid));
-const gridPlus2 = blessTheRains(gridPlus1);
-const gridPlus3 = bringTheHeat(gridPlus2);
-const gridPlus4 = applyRainShadows(gridPlus3,0.4);
-
-const gridPlus5=swapXY(gridPlus4);
-console.log(gridPlus5);
-
-home.style.display = 'grid';
-home.style.gridTemplateColumns = 'repeat('+ x +', 1fr)';
-
-for(let i =0; i<(x*y);i++){
-  let formation = document.createElement('div');
-  formation.id = i;
-  formation.style.width = ''+q+'px';
-  formation.style.height = ''+q+'px';
-  //formation.style.border = 'solid black 1px';
-  formation.style.border = 'none';
-  home.style.margin= '0';
-  home.append(formation);
+//=========================================================================
+//Download Canvas
+//=========================================================================
+const downloadCanvas = () => {
+  const a = document.createElement("a");
+  let screen = document.getElementById('screen');
+  document.body.appendChild(a);
+  a.href = screen.toDataURL();
+  a.download = "YourMap.png";
+  a.click();
+  document.body.removeChild(a);
 }
+document.getElementById('download').addEventListener("click",downloadCanvas);
 
 //=========================================================================
 //This code is here to apply colors to heights
@@ -392,17 +412,74 @@ const convertToBiome = (target,set)=>{
 //======================================================================
 //This stuff applies all the styles
 //======================================================================
-for(let j=0;j<y;j++){
-  for(let k=0; k<x; k++){
-    // const value = convertToRGB(grid[k][j]);
-    const value = convertObjectToRGB(gridPlus5[k][j]);
-    let focus = document.getElementById(((j*(x))+k));
-    focus.style.backgroundColor = value+'';
+// for(let j=0;j<y;j++){
+//   for(let k=0; k<x; k++){
+//     // const value = convertToRGB(grid[k][j]);
+//     const value = convertObjectToRGB(gridPlus5[k][j]);
+//     let focus = document.getElementById(((j*(x))+k));
+//     focus.style.backgroundColor = value+'';
     // if(gridPlus5[k][j].shade){
     //   focus.style.backgroundColor = 'yellow';
     // }
     // if(gridPlus5[k][j].windZone==0){
     //   focus.style.borderRight = 'solid black 1px';
     // }
+//   }
+// }
+
+
+//==========================================================================================
+// Drawing things to the screen
+//==========================================================================================
+let screen = document.getElementById('screen');
+let brush = screen.getContext("2d");
+screen.style.boxSizing = 'border-box';
+
+const x = 500;
+const y= 250;
+const noiseConstants = [80,65];
+
+let q;
+if(window.innerWidth > window.innerHeight){
+  q = ((window.innerHeight-window.innerHeight%y)/y);
+}else{
+  q = ((window.innerWidth-window.innerWidth%x)/x);
+}
+
+screen.style.width = x*q+"";
+screen.style.height = y*q+"";
+screen.width = x*q;
+screen.height = y*q;
+
+const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
+const gridPlus1 = callTheWind(swapXY(grid));
+const gridPlus2 = blessTheRains(gridPlus1);
+const gridPlus3 = bringTheHeat(gridPlus2);
+const gridPlus4 = applyRainShadows(gridPlus3,0.4);
+
+const gridPlus5=swapXY(gridPlus4);
+
+for(let j=0;j<y;j++){
+  for(let k=0; k<x; k++){
+    // const value = convertToRGB(grid[k][j]);
+    const value = convertObjectToRGB(gridPlus5[k][j]);
+    brush.beginPath();
+    brush.fillStyle = value;
+    brush.fillRect(k*q,j*q,1*q,1*q);
+    brush.stroke();
   }
 }
+
+//===========================================================================
+//scrolling zoom
+//===========================================================================
+const zoomElement = document.querySelector("#screen");
+let zoom = 1;
+
+document.addEventListener("wheel", (event) => {
+  if(event.deltaY<0){
+    zoomElement.style.transform=`scale(${(zoom += 0.3)})`;
+  } else {
+    zoomElement.style.transform=`scale(${(zoom>0.4? zoom -= 0.3:zoom =zoom)})`;
+  }
+})
