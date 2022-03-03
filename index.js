@@ -487,6 +487,7 @@ const getCanvasPos = (mousePos) => {
   return {x:(mousePos.x-rect.left)*scaleX, y:(mousePos.y-rect.top)*scaleY};
 }
 
+
 const zoomElement = document.querySelector("#screen");
 let zoom = 1;
 let mousePos = {x:0,y:0};
@@ -494,19 +495,36 @@ const cx = screen.width/2;
 const cy = screen.height/2;
 
 
+  brush.beginPath();
+  brush.fillStyle = "red";
+  brush.fillRect(cx-10,cy-10,10,10);
+  brush.stroke();
+
 document.addEventListener("wheel", (event) => {
+  const screen = document.getElementById('screen');
+  var rect = screen.getBoundingClientRect();
+  let scaleX = screen.width/rect.width;
+  let scaleY = screen.height/rect.height;
+
+
   const target = getCanvasPos(mousePos);
+  const windowTarget = mousePos;
+  const container = document.getElementById('container');
+  const zoomRate = 0.1;
   if(event.deltaY<0){
-    zoomElement.style.transform=`translate(${zoom*(cx-target.x)}px,${zoom*(cy-target.y)}px) scale(${(zoom += 0.3)})`;
+    zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
+    // zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${((zoom*target.x)-target.x)}px) translateY(${((zoom*target.y)-target.y)}px)`;
+    zoom = parseFloat(zoom.toFixed(2));
   } else {
-    zoomElement.style.transform=`translate(${zoom*(cx-target.x)}px,${zoom*(cy-target.y)}px) scale(${(zoom>0.4? zoom -= 0.3:zoom =zoom)})`;
+    zoomElement.style.transform=`scale(${(zoom-zoomRate>=1? zoom -= zoomRate:zoom =zoom)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
   }
-  if(zoom<0.5){
+  if(zoom==1){
     zoomElement.style.transform=`translate(0,0) scale(${zoom})`;
   }
 })
 document.addEventListener("click",()=>{
   const marker = getCanvasPos(mousePos);
+  console.log(marker);
   brush.beginPath();
   brush.fillStyle = "red";
   brush.fillRect(marker.x,marker.y,10,10);
