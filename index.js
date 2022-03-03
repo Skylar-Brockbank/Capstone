@@ -501,14 +501,6 @@ const cy = screen.height/2;
   brush.stroke();
 
 document.addEventListener("wheel", (event) => {
-  const screen = document.getElementById('screen');
-  var rect = screen.getBoundingClientRect();
-  let scaleX = screen.width/rect.width;
-  let scaleY = screen.height/rect.height;
-
-
-  const target = getCanvasPos(mousePos);
-  const windowTarget = mousePos;
   const container = document.getElementById('container');
   const zoomRate = 0.1;
   if(event.deltaY<0){
