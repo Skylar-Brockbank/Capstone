@@ -491,6 +491,7 @@ const getCanvasPos = (mousePos) => {
 const zoomElement = document.querySelector("#screen");
 let zoom = 1;
 let mousePos = {x:0,y:0};
+let panning;
 const cx = screen.width/2;
 const cy = screen.height/2;
 
@@ -500,25 +501,69 @@ const cy = screen.height/2;
   brush.fillRect(cx-10,cy-10,10,10);
   brush.stroke();
 
-document.addEventListener("wheel", (event) => {
-  const container = document.getElementById('container');
-  const zoomRate = 0.1;
-  if(event.deltaY<0){
-    zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
-    // zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${((zoom*target.x)-target.x)}px) translateY(${((zoom*target.y)-target.y)}px)`;
-    zoom = parseFloat(zoom.toFixed(2));
-  } else {
-    zoomElement.style.transform=`scale(${(zoom-zoomRate>=1? zoom -= zoomRate:zoom =zoom)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
+
+  var pointX = 0,
+      pointY = 0,
+      start = {x:0,y:0};
+
+  const setTransform = (target) =>{
+    target.style.transform = `translate(${pointX}px, ${pointY}px) scale(${zoom})`;
   }
-  if(zoom==1){
-    zoomElement.style.transform=`translate(0,0) scale(${zoom})`;
+
+  zoomElement.onmousedown = function (e) {
+    e.preventDefault();
+    if(e.shiftKey){
+      start = { x: e.clientX - pointX, y: e.clientY - pointY };
+      panning = true;
+    }else{
+      const marker = getCanvasPos(mousePos);
+      console.log(marker);
+      brush.beginPath();
+      brush.fillStyle = "red";
+      brush.fillRect(marker.x,marker.y,10,10);
+      brush.stroke();
+    }
   }
-})
-document.addEventListener("click",()=>{
-  const marker = getCanvasPos(mousePos);
-  console.log(marker);
-  brush.beginPath();
-  brush.fillStyle = "red";
-  brush.fillRect(marker.x,marker.y,10,10);
-  brush.stroke();
-})
+  zoomElement.onmouseup = function (e) {
+    panning = false;
+  }
+  zoomElement.onmousemove = function (e) {
+    e.preventDefault();
+    if (!panning) {
+      return;
+    }
+    pointX = (e.clientX - start.x);
+    pointY = (e.clientY - start.y);
+    setTransform(zoomElement);
+  }
+
+  zoomElement.onwheel = (event)=>{
+    event.preventDefault();
+    let xs = (event.clientX - pointX)/zoom;
+    let ys = (event.clientY - pointY)/zoom;
+    (event.deltaY<0)? (zoom+=0.1):(zoom-=0.1);
+    if(zoom < 1){
+      zoom=1;
+      pointX = 0;
+      pointY = 0;
+    }else{
+      pointX = event.clientX - xs * zoom;
+      pointY = event.clientY - ys * zoom;
+    }
+    setTransform(zoomElement);
+  }
+
+// document.addEventListener("wheel", (event) => {
+//   const container = document.getElementById('container');
+//   const zoomRate = 0.1;
+//   if(event.deltaY<0){
+//     zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
+//     // zoomElement.style.transform=`scale(${(zoom += zoomRate)}) translateX(${((zoom*target.x)-target.x)}px) translateY(${((zoom*target.y)-target.y)}px)`;
+//     zoom = parseFloat(zoom.toFixed(2));
+//   } else {
+//     zoomElement.style.transform=`scale(${(zoom-zoomRate>=1? zoom -= zoomRate:zoom =zoom)}) translateX(${(container.clientWidth/1.575)-(mousePos.x)}px) translateY(${0+(container.clientHeight/2)-mousePos.y}px)`;
+//   }
+//   if(zoom==1){
+//     zoomElement.style.transform=`translate(0,0) scale(${zoom})`;
+//   }
+// })
