@@ -490,12 +490,19 @@ const getCanvasPos = (mousePos) => {
 const zoomElement = document.querySelector("#screen");
 let zoom = 1;
 let mousePos = {x:0,y:0};
+const cx = screen.width/2;
+const cy = screen.height/2;
+
 
 document.addEventListener("wheel", (event) => {
+  const target = getCanvasPos(mousePos);
   if(event.deltaY<0){
-    zoomElement.style.transform=`scale(${(zoom += 0.3)})`;
+    zoomElement.style.transform=`translate(${zoom*(cx-target.x)}px,${zoom*(cy-target.y)}px) scale(${(zoom += 0.3)})`;
   } else {
-    zoomElement.style.transform=`scale(${(zoom>0.4? zoom -= 0.3:zoom =zoom)})`;
+    zoomElement.style.transform=`translate(${zoom*(cx-target.x)}px,${zoom*(cy-target.y)}px) scale(${(zoom>0.4? zoom -= 0.3:zoom =zoom)})`;
+  }
+  if(zoom<0.5){
+    zoomElement.style.transform=`translate(0,0) scale(${zoom})`;
   }
 })
 document.addEventListener("click",()=>{
