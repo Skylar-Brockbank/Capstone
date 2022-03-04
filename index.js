@@ -553,6 +553,15 @@ let selectedArea =[];
     selectedArea = [];
   }
   //==================================================================================
+  //Handle Roads
+  //==================================================================================
+  const roadStartButton = document.getElementById('roadStartButton');
+  roadStartButton.addEventListener("click", e =>{
+    e.preventDefault();
+    road = 1;
+  })
+
+  //==================================================================================
   //Handles clicks, if shift is down it's pan, if not it's draw
   //==================================================================================
   zoomElement.onmousedown = function (e) {
@@ -560,6 +569,17 @@ let selectedArea =[];
     if(e.shiftKey){
       start = { x: e.clientX - pointX, y: e.clientY - pointY };
       panning = true;
+
+    }else if(road!=0){
+      if(road ==2){
+        //call the 2 point road method
+        road = 0;
+      }else if(road==1){
+        const obj = quantizeMouse();
+        drawSquare(obj,'purple');
+        roadPoint = quantizeMouse();
+        road += 1;
+      }
     }else{
       drawing = true;
       const marker = quantizeMouse();
@@ -575,13 +595,7 @@ let selectedArea =[];
   }
 
   zoomElement.onmouseup = function (e) {
-    if(road ==2){
-
-      road = 0;
-    }else if(road==1){
-      roadPoint = quantizeMouse();
-      road += 1;
-    }
+    
     panning = false;
     drawing = false;
     if(selectedArea.length>0){
