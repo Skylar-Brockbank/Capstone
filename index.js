@@ -483,6 +483,7 @@ const getCanvasPos = (mousePos) => {
 
 
 const zoomElement = document.querySelector("#screen");
+const brushRadius = document.getElementById('brushSize');
 let zoom = 1;
 let mousePos = {x:0,y:0};
 let cMousePos = {x:0,y:0};
@@ -524,6 +525,13 @@ let drawing = false;
       drawing = true;
       const marker = quantizeMouse();
       drawSquare(marker,currentColor);
+      const test = brushProfiles(marker.x,marker.y,parseInt(brushRadius.value));
+      test.map(c=>{
+        const x = c.x;
+        const y = c.y;
+        const ob = {x:x,y:y};
+        drawSquare(ob,currentColor);
+      });
     }
   }
   zoomElement.onmouseup = function (e) {
@@ -545,7 +553,16 @@ let drawing = false;
     cMousePos.x = e.clientX;
     cMousePos.y = e.clientY;
     if (!panning) {
-      if(drawing)drawSquare(quantizeMouse(),currentColor);
+      if(drawing){
+        const marker = quantizeMouse();
+        const test = brushProfiles(marker.x,marker.y,parseInt(brushRadius.value));
+      test.map(c=>{
+        const x = c.x;
+        const y = c.y;
+        const ob = {x:x,y:y};
+        drawSquare(ob,currentColor);
+      });
+      };
       return;
     }
     pointX = (e.clientX - start.x);
@@ -570,4 +587,23 @@ let drawing = false;
       pointY = event.clientY - ys * zoom;
     }
     setTransform(zoomElement);
+  }
+
+  const calculateDistance = (x1,y1,x2,y2) =>{
+    const dX = x1-x2;
+    const dY = y1-y2;
+    return ((dX**2+dY**2)**.5);
+  }
+
+  const brushProfiles = (xInput,yInput,R) => {
+    let output = [];
+    for(let i = (yInput-R);i<=(yInput+R);i++){
+      for(let j = (xInput-R);j<=(xInput+R);j++){
+        if(calculateDistance(xInput,yInput,j,i)<=R){
+          const target = {x:xInput+((xInput-j)*q),y:yInput+((yInput-i)*q)};
+          output.push(target);
+        }
+      }
+    }
+    return output;
   }

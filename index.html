@@ -8,8 +8,32 @@
     <div id="container">
       <canvas id="screen"></canvas>
     </div>
-    <div>
-      <button id="download">download</button>
+    <div id = 'controlContainer'>
+      <div id="fileManagement" class="panels">
+        <button id="download">Download Image</button>
+        <br/><br/>
+        <button id="downloadFile">Download File</button>
+        <br/><br/>
+        <input type="file" id="upload">
+      </div>
+      <div id="tools">
+        <div id="edits" class="panels">
+          <button id="commit">Commit Changes</button>
+          <br/><br/>
+          <button id="discard">Discard Changes</button>
+        </div>
+      </div>
+      <div id="brushControlls" class="panels">
+        <label>Brush
+          <select id="brushColor">
+            <option value = "1">test</option>
+          </select>
+        </label>
+        <br/>
+        <label>Size
+          <input type="range" id="brushSize" min="0" max="10">
+        </label>
+      </div>
     </div>
   </body>
   <script src="./index.js"></script>

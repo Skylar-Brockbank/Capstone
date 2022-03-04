@@ -17,3 +17,14 @@ canvas {
   height: 80vh;
   overflow: hidden;
 }
+
+#controlContainer {
+  display: flex;
+}
+
+.panels {
+  border: solid rgba(0, 0, 0, 0.158) 2px;
+  width: fit-content;
+  height: 100%;
+  padding: .5em;
+}
