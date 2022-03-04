@@ -465,6 +465,8 @@ let cMousePos = {x:0,y:0};
 let panning;
 let currentColor = "red";
 let drawing = false;
+let road = 0;
+let roadPoint = {};
 let selectedArea =[];
 
   var pointX = 0,
@@ -521,13 +523,13 @@ let selectedArea =[];
 
   const pullBrush = (input) =>{
       const brushPower = document.getElementById('brushPower').value;
-      input.map(c=>{
+      input.map(c=>{ 
         if(gridPlus5[c.x/q][c.y/q].elevation+(0.001*brushPower) < brushMaximum.value/100){
-          // if(gridPlus5[c.x/q][c.y/q].elevation+=0.001*brushPower>brushMinimum.value){
+          if(gridPlus5[c.x/q][c.y/q].elevation+0.001*brushPower>brushMinimum.value){
             gridPlus5[c.x/q][c.y/q].elevation+=0.001*brushPower;
-          // }else{
-          //   gridPlus5[c.x/q][c.y/q].elevation = (brush.Minimum.value/100);
-          // }
+          }else{
+            gridPlus5[c.x/q][c.y/q].elevation = (brushMinimum.value/100);
+          }
         }else{
           gridPlus5[c.x/q][c.y/q].elevation = (brushMaximum.value/100);
         }
@@ -571,14 +573,15 @@ let selectedArea =[];
     });    
     }
   }
-  // test.map(c=>{
-  //   const x = c.x;
-  //   const y = c.y;
-  //   const ob = {x:x,y:y};
-  //   // drawSquare(ob,currentColor);
-  //   pullBrush(c);
-  // });
+
   zoomElement.onmouseup = function (e) {
+    if(road ==2){
+
+      road = 0;
+    }else if(road==1){
+      roadPoint = quantizeMouse();
+      road += 1;
+    }
     panning = false;
     drawing = false;
     if(selectedArea.length>0){
