@@ -240,48 +240,6 @@ const applyRainShadows = (inputArray, elevation) =>{
   });
 }
 
-// const home = document.getElementById('container')
-// home.style.boxSizing= 'border-box';
-// const x = 500;
-// const y= 250;
-// const noiseConstants = [80,60];
-// home.style.height = 'fit-content';
-// let q;
-// if(window.innerWidth > window.innerHeight){
-//   q = (window.innerHeight)/y;
-// }else{
-//   q = (window.innerWidth)/x;
-// }
-// document.querySelector('body').style.margin = '0';
-// home.style.border = 'solid black 2px';
-// home.style.width= 'fit-content';
-// home.style.padding= '0';
-// home.style.gridGap= '0';
-// const grid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
-// //testing factor adding functions
-// const gridPlus1 = callTheWind(swapXY(grid));
-// const gridPlus2 = blessTheRains(gridPlus1);
-// const gridPlus3 = bringTheHeat(gridPlus2);
-// const gridPlus4 = applyRainShadows(gridPlus3,0.4);
-
-// const gridPlus5=swapXY(gridPlus4);
-// console.log(gridPlus5);
-
-// home.style.display = 'grid';
-// home.style.gridTemplateColumns = 'repeat('+ x +', 1fr)';
-
-// for(let i =0; i<(x*y);i++){
-//   let formation = document.createElement('div');
-//   formation.id = i;
-//   formation.style.width = ''+q+'px';
-//   formation.style.height = ''+q+'px';
-//   //formation.style.border = 'solid black 1px';
-//   formation.style.border = 'none';
-//   home.style.margin= '0';
-//   home.append(formation);
-// }
-
-
 
 //=========================================================================
 //Download Canvas
@@ -507,6 +465,7 @@ let cMousePos = {x:0,y:0};
 let panning;
 let currentColor = "red";
 let drawing = false;
+let selectedArea =[];
 
   var pointX = 0,
       pointY = 0,
@@ -530,22 +489,67 @@ let drawing = false;
     target.style.transform = `translate(${pointX}px, ${pointY}px) scale(${zoom})`;
   }
 
+
+  //==================================================================================
+  //Set monitoring values
+  //==================================================================================
+  const powerDisplay = document.getElementById("displayOfPower");
+  const minDisplay = document.getElementById("minDisplay");
+  const maxDisplay = document.getElementById("maxDisplay");
+  
+  const brushPowerSlider = document.getElementById("brushPower");
+  const brushMinimum = document.getElementById('brushMinimum');
+  const brushMaximum = document.getElementById('brushMaximum');
+
+  brushPowerSlider.addEventListener("change", e=>{
+    e.preventDefault();
+    powerDisplay.textContent = brushPowerSlider.value;
+  });
+  brushMinimum.addEventListener("change", e=>{
+    e.preventDefault();
+    minDisplay.textContent=brushMinimum.value;
+    minDisplay.style.backgroundColor = convertObjectToRGB({elevation:(brushMinimum.value/100)});
+  })
+  brushMaximum.addEventListener("change", e=>{
+    e.preventDefault();
+    maxDisplay.textContent=brushMaximum.value;
+    maxDisplay.style.backgroundColor = convertObjectToRGB({elevation:(brushMaximum.value/100)});
+  })
   //==================================================================================
   //brushes
   //==================================================================================
 
   const pullBrush = (input) =>{
+      const brushPower = document.getElementById('brushPower').value;
       input.map(c=>{
-        console.log(gridPlus5[c.x/q][c.y/q].elevation);
-        if(gridPlus5[c.x/q][c.y/q].elevation<1){
-          gridPlus5[c.x/q][c.y/q].elevation+=0.1
+        if(gridPlus5[c.x/q][c.y/q].elevation+(0.001*brushPower) < brushMaximum.value/100){
+          // if(gridPlus5[c.x/q][c.y/q].elevation+=0.001*brushPower>brushMinimum.value){
+            gridPlus5[c.x/q][c.y/q].elevation+=0.001*brushPower;
+          // }else{
+          //   gridPlus5[c.x/q][c.y/q].elevation = (brush.Minimum.value/100);
+          // }
+        }else{
+          gridPlus5[c.x/q][c.y/q].elevation = (brushMaximum.value/100);
         }
+      
       });
     clearMap();
     drawMap();
-    console.log('drawn');
   }
-
+  const selectZone = (input) =>{
+    const test=[];
+    input.forEach((x)=>{
+      const targetString = JSON.stringify(x);
+      if(!test.includes(targetString)){
+        test.push(targetString);
+      } 
+    })
+    const zone = test.map(g=>{
+      return JSON.parse(g);
+    })
+    pullBrush(zone);
+    selectedArea = [];
+  }
   //==================================================================================
   //Handles clicks, if shift is down it's pan, if not it's draw
   //==================================================================================
@@ -558,7 +562,13 @@ let drawing = false;
       drawing = true;
       const marker = quantizeMouse();
       const test = brushProfiles(marker.x,marker.y,parseInt(brushRadius.value));
-      pullBrush(test);
+      selectedArea.push(...test);
+      test.map(c=>{
+      const x = c.x;
+      const y = c.y;
+      const ob = {x:x,y:y};
+      drawSquare(ob,currentColor);
+    });    
     }
   }
   // test.map(c=>{
@@ -571,6 +581,9 @@ let drawing = false;
   zoomElement.onmouseup = function (e) {
     panning = false;
     drawing = false;
+    if(selectedArea.length>0){
+      selectZone(selectedArea);
+    }
   }
   const drawSquare = (marker, color) =>{
     brush.beginPath();
@@ -590,7 +603,13 @@ let drawing = false;
       if(drawing){
         const marker = quantizeMouse();
         const test = brushProfiles(marker.x,marker.y,parseInt(brushRadius.value));
-        pullBrush(test);
+        selectedArea.push(...test);
+        test.map(c=>{
+          const x = c.x;
+          const y = c.y;
+          const ob = {x:x,y:y};
+          drawSquare(ob,currentColor);
+        }); 
       };
       return;
     }
@@ -629,7 +648,7 @@ let drawing = false;
     for(let i = (yInput-R);i<=(yInput+R);i++){
       for(let j = (xInput-R);j<=(xInput+R);j++){
         if(calculateDistance(xInput,yInput,j,i)<=R){
-          const target = {x:xInput+((xInput-j)*q),y:yInput+((yInput-i)*q),d:calculateDistance(xInput,yInput,j,i)};
+          const target = {x:xInput+((xInput-j)*q),y:yInput+((yInput-i)*q)};
           output.push(target);
         }
       }
