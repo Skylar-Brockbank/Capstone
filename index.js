@@ -401,24 +401,6 @@ const convertToBiome = (target,set)=>{
   return styleMatrix[set][temp][precip];
 }
 
-//======================================================================
-//This stuff applies all the styles
-//======================================================================
-// for(let j=0;j<y;j++){
-//   for(let k=0; k<x; k++){
-//     // const value = convertToRGB(grid[k][j]);
-//     const value = convertObjectToRGB(gridPlus5[k][j]);
-//     let focus = document.getElementById(((j*(x))+k));
-//     focus.style.backgroundColor = value+'';
-    // if(gridPlus5[k][j].shade){
-    //   focus.style.backgroundColor = 'yellow';
-    // }
-    // if(gridPlus5[k][j].windZone==0){
-    //   focus.style.borderRight = 'solid black 1px';
-    // }
-//   }
-// }
-
 
 //==========================================================================================
 // Drawing things to the screen
@@ -451,7 +433,9 @@ const gridPlus4 = applyRainShadows(gridPlus3,0.4);
 
 let gridPlus5=swapXY(gridPlus4);
 
-let saveState = {...gridPlus5};
+let saveState = JSON.parse(JSON.stringify(gridPlus5));
+console.log(saveState);
+
 
 const drawMap = () =>{
   for(let j=0;j<y;j++){
@@ -485,12 +469,14 @@ discardButton.addEventListener("click",e=>{
 
 
 const commitChanges = () =>{
-  saveState = {...gridPlus5};
+  console.log('save');
+  saveState = JSON.parse(JSON.stringify(gridPlus5));
   clearMap();
   drawMap();
 }
 const discardChanges = () =>{
-  gridPlus5 = {...saveState};
+  console.log('discard');
+  gridPlus5 = JSON.parse(JSON.stringify(saveState));
   clearMap();
   drawMap();
 }
@@ -545,6 +531,22 @@ let drawing = false;
   }
 
   //==================================================================================
+  //brushes
+  //==================================================================================
+
+  const pullBrush = (input) =>{
+      input.map(c=>{
+        console.log(gridPlus5[c.x/q][c.y/q].elevation);
+        if(gridPlus5[c.x/q][c.y/q].elevation<1){
+          gridPlus5[c.x/q][c.y/q].elevation+=0.1
+        }
+      });
+    clearMap();
+    drawMap();
+    console.log('drawn');
+  }
+
+  //==================================================================================
   //Handles clicks, if shift is down it's pan, if not it's draw
   //==================================================================================
   zoomElement.onmousedown = function (e) {
@@ -555,16 +557,17 @@ let drawing = false;
     }else{
       drawing = true;
       const marker = quantizeMouse();
-      drawSquare(marker,currentColor);
       const test = brushProfiles(marker.x,marker.y,parseInt(brushRadius.value));
-      test.map(c=>{
-        const x = c.x;
-        const y = c.y;
-        const ob = {x:x,y:y};
-        drawSquare(ob,currentColor);
-      });
+      pullBrush(test);
     }
   }
+  // test.map(c=>{
+  //   const x = c.x;
+  //   const y = c.y;
+  //   const ob = {x:x,y:y};
+  //   // drawSquare(ob,currentColor);
+  //   pullBrush(c);
+  // });
   zoomElement.onmouseup = function (e) {
     panning = false;
     drawing = false;
@@ -587,12 +590,7 @@ let drawing = false;
       if(drawing){
         const marker = quantizeMouse();
         const test = brushProfiles(marker.x,marker.y,parseInt(brushRadius.value));
-      test.map(c=>{
-        const x = c.x;
-        const y = c.y;
-        const ob = {x:x,y:y};
-        drawSquare(ob,currentColor);
-      });
+        pullBrush(test);
       };
       return;
     }
@@ -631,7 +629,7 @@ let drawing = false;
     for(let i = (yInput-R);i<=(yInput+R);i++){
       for(let j = (xInput-R);j<=(xInput+R);j++){
         if(calculateDistance(xInput,yInput,j,i)<=R){
-          const target = {x:xInput+((xInput-j)*q),y:yInput+((yInput-i)*q)};
+          const target = {x:xInput+((xInput-j)*q),y:yInput+((yInput-i)*q),d:calculateDistance(xInput,yInput,j,i)};
           output.push(target);
         }
       }
