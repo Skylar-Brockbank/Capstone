@@ -449,20 +449,51 @@ const gridPlus2 = blessTheRains(gridPlus1);
 const gridPlus3 = bringTheHeat(gridPlus2);
 const gridPlus4 = applyRainShadows(gridPlus3,0.4);
 
-const gridPlus5=swapXY(gridPlus4);
+let gridPlus5=swapXY(gridPlus4);
 
-for(let j=0;j<y;j++){
-  for(let k=0; k<x; k++){
-    // const value = convertToRGB(grid[k][j]);
-    const value = convertObjectToRGB(gridPlus5[k][j]);
-    brush.beginPath();
-    brush.fillStyle = value;
-    brush.fillRect(k*q,j*q,1*q,1*q);
-    brush.stroke();
+let saveState = {...gridPlus5};
+
+const drawMap = () =>{
+  for(let j=0;j<y;j++){
+    for(let k=0; k<x; k++){
+      // const value = convertToRGB(grid[k][j]);
+      const value = convertObjectToRGB(gridPlus5[k][j]);
+      brush.beginPath();
+      brush.fillStyle = value;
+      brush.fillRect(k*q,j*q,1*q,1*q);
+      brush.stroke();
+    }
   }
 }
+drawMap();
+const clearMap = () =>{
+  brush.clearRect(0, 0, screen.width, screen.height);
+}
+//==========================================================================
+//Commit and Discard Changes
+//==========================================================================
+const commitButton = document.getElementById('commit');
+const discardButton = document.getElementById('discard');
+commitButton.addEventListener("click",e=>{
+  e.preventDefault();
+  commitChanges();
+});
+discardButton.addEventListener("click",e=>{
+  e.preventDefault();
+  discardChanges();
+});
 
 
+const commitChanges = () =>{
+  saveState = {...gridPlus5};
+  clearMap();
+  drawMap();
+}
+const discardChanges = () =>{
+  gridPlus5 = {...saveState};
+  clearMap();
+  drawMap();
+}
 
 //===========================================================================
 //map window mouse position to variable
