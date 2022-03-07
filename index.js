@@ -495,28 +495,29 @@ let selectedArea =[];
   //==================================================================================
   //Set monitoring values
   //==================================================================================
-  const powerDisplay = document.getElementById("displayOfPower");
-  const minDisplay = document.getElementById("minDisplay");
-  const maxDisplay = document.getElementById("maxDisplay");
+  // const powerDisplay = document.getElementById("displayOfPower");
+  // const minDisplay = document.getElementById("minDisplay");
+  // const maxDisplay = document.getElementById("maxDisplay");
   
-  const brushPowerSlider = document.getElementById("brushPower");
-  const brushMinimum = document.getElementById('brushMinimum');
-  const brushMaximum = document.getElementById('brushMaximum');
+  // const brushPowerSlider = document.getElementById("brushPower");
+  // const brushMinimum = document.getElementById('brushMinimum');
+  // const brushMaximum = document.getElementById('brushMaximum');
 
-  brushPowerSlider.addEventListener("change", e=>{
-    e.preventDefault();
-    powerDisplay.textContent = brushPowerSlider.value;
-  });
-  brushMinimum.addEventListener("change", e=>{
-    e.preventDefault();
-    minDisplay.textContent=brushMinimum.value;
-    minDisplay.style.backgroundColor = convertObjectToRGB({elevation:(brushMinimum.value/100)});
-  })
-  brushMaximum.addEventListener("change", e=>{
-    e.preventDefault();
-    maxDisplay.textContent=brushMaximum.value;
-    maxDisplay.style.backgroundColor = convertObjectToRGB({elevation:(brushMaximum.value/100)});
-  })
+  // brushPowerSlider.addEventListener("change", e=>{
+  //   e.preventDefault();
+  //   powerDisplay.textContent = brushPowerSlider.value;
+  // });
+  // brushMinimum.addEventListener("change", e=>{
+  //   e.preventDefault();
+  //   minDisplay.textContent=brushMinimum.value;
+  //   minDisplay.style.backgroundColor = convertObjectToRGB({elevation:(brushMinimum.value/100)});
+  // })
+  // brushMaximum.addEventListener("change", e=>{
+  //   e.preventDefault();
+  //   maxDisplay.textContent=brushMaximum.value;
+  //   maxDisplay.style.backgroundColor = convertObjectToRGB({elevation:(brushMaximum.value/100)});
+  // })
+  const brushSelector = document.getElementById('brushColor');
   //==================================================================================
   //brushes
   //==================================================================================
@@ -538,7 +539,26 @@ let selectedArea =[];
     clearMap();
     drawMap();
   }
-  const selectZone = (input) =>{
+
+  const elevationBrush = (input,maxX,maxY, elevation) =>{
+    console.log(elevation);
+    input.map(c=>{
+      if(c.x/q>=0&&c.x/q<=maxX&&c.y/q>=0&&c.y/q<=maxY){
+        console.log('running');
+        gridPlus5[c.x/q][c.y/q].elevation = elevation;
+      }
+    })
+    clearMap();
+    drawMap();
+  }
+
+  const eleBrush = (input)=>{
+    console.log(input);
+    const bounds = [0.24,0.25,0.31,0.33,0.37,0.4,0.42,0.46];
+    return elevationBrush(input, x,y,bounds[parseInt(brushSelector.value)-1]);
+  }
+
+  const selectZone = (input, func) =>{
     const test=[];
     input.forEach((x)=>{
       const targetString = JSON.stringify(x);
@@ -549,7 +569,7 @@ let selectedArea =[];
     const zone = test.map(g=>{
       return JSON.parse(g);
     })
-    pullBrush(zone);
+    func(zone);
     selectedArea = [];
   }
   //==================================================================================
@@ -603,7 +623,7 @@ let selectedArea =[];
     panning = false;
     drawing = false;
     if(selectedArea.length>0){
-      selectZone(selectedArea);
+      selectZone(selectedArea,eleBrush);
     }
   }
   const drawSquare = (marker, color) =>{
