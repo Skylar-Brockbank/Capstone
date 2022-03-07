@@ -1,3 +1,7 @@
+const brushSelector = document.getElementById('brushColor');
+const gridLines = document.getElementById("gridLines");
+
+
 const pieceWise = (inputArray, newLength) => {
   const biteSize = (inputArray.length/newLength);
   let outputArray = [];
@@ -406,6 +410,40 @@ const drawMap = () =>{
       brush.stroke();
     }
   }
+  if(gridLines.checked){
+    const color = "rgba(202, 202, 202, 0.526)";
+    for(let i = 0; i<x; i+=5){
+      brush.beginPath();
+      brush.strokeStyle = color;
+      if(i%30==0){
+        brush.lineWidth = 1.5;
+        brush.font = "10px Arial";
+        brush.fillStyle = "white";
+        brush.fillText((i/5)+"",i*q,3*q);
+      }else{
+        brush.lineWidth = 1;
+      }
+      brush.moveTo(i*q,0);
+      brush.lineTo(i*q,screen.height);
+      brush.stroke();
+    }
+    for(let e = 0; e<y; e+=5){
+      brush.beginPath();
+      brush.strokeStyle = color;
+      if(e%30==0){
+        brush.lineWidth = 1.5;
+        brush.font = "10px Arial";
+        brush.fillStyle = "white";
+        brush.fillText((e/5)+"",0,e*q);
+      }else{
+        brush.lineWidth = 1;
+      }
+      brush.moveTo(0,e*q);
+      
+      brush.lineTo(screen.width,e*q);
+      brush.stroke();
+    }
+  }
 }
 drawMap();
 const clearMap = () =>{
@@ -517,7 +555,13 @@ let selectedArea =[];
   //   maxDisplay.textContent=brushMaximum.value;
   //   maxDisplay.style.backgroundColor = convertObjectToRGB({elevation:(brushMaximum.value/100)});
   // })
-  const brushSelector = document.getElementById('brushColor');
+
+  gridLines.addEventListener("change", e=>{
+    e.preventDefault();
+    console.log(gridLines.checked);
+    clearMap();
+    drawMap();
+  })
   //==================================================================================
   //brushes
   //==================================================================================

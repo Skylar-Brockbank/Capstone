@@ -8,7 +8,7 @@ body {
 
 canvas {
   z-index: -1;
-  image-rendering: pixelated crisp-edges;
+  image-rendering: pixelated;
   transform-origin: 0px 0px;
   transform: scale(1) translate(0px, 0px);
 }
@@ -27,4 +27,5 @@ canvas {
   width: fit-content;
   height: 100%;
   padding: .5em;
+  /* color: rgba(202, 202, 202, 0.726) */
 }
