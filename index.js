@@ -257,8 +257,33 @@ const downloadCanvas = () => {
   a.click();
   document.body.removeChild(a);
 }
+
 document.getElementById('download').addEventListener("click",downloadCanvas);
 
+const downloadMapAsFile = () =>{
+  const blob = new Blob([JSON.stringify(gridPlus5)],{type:"octet-stream"});
+  const a = document.createElement("a");
+  document.body.appendChild(a);
+  const href = URL.createObjectURL(blob);
+  a.href = href;
+  a.download = "map.txt";
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(href);
+}
+document.getElementById('downloadFile').addEventListener("click",downloadMapAsFile);
+
+let fileIn = document.getElementById('upload');
+
+fileIn.addEventListener('change',()=>{
+  let fr = new FileReader();
+  fr.readAsText(fileIn.files[0]);
+  fr.onload = () =>{
+    gridPlus5 = JSON.parse(fr.result);
+    clearMap();
+    drawMap();
+  };
+});
 //=========================================================================
 //This code is here to apply colors to heights
 //=========================================================================
