@@ -266,7 +266,7 @@ const downloadMapAsFile = () =>{
   document.body.appendChild(a);
   const href = URL.createObjectURL(blob);
   a.href = href;
-  a.download = "map.txt";
+  a.download = "map.brd";
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(href);
