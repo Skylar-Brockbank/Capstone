@@ -2,6 +2,7 @@ const brushSelector = document.getElementById('brushColor');
 const gridLines = document.getElementById("gridLines");
 
 
+
 const pieceWise = (inputArray, newLength) => {
   const biteSize = (inputArray.length/newLength);
   let outputArray = [];
