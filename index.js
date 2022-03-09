@@ -1,6 +1,16 @@
 const brushSelector = document.getElementById('brushColor');
 const gridLines = document.getElementById("gridLines");
+const viewButton = document.getElementById('viewMode');
+const controlContainer = document.getElementById('controlContainer');
+const resourceContainer = document.getElementById('resourceData');
 
+let view = true;
+
+viewButton.addEventListener('click', ()=>{
+  view = !view;
+  controlContainer.style.display = (view)?'flex':'none';
+  resourceContainer.style.display = (view)?'none':'block';
+})
 
 
 const pieceWise = (inputArray, newLength) => {
@@ -726,6 +736,8 @@ let selectedArea =[];
         roadPoint = quantizeMouse();
         road += 1;
       }
+    }else if(!view){
+      //resource selector
     }else{
       drawing = true;
       const marker = quantizeMouse();
