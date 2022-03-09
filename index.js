@@ -646,13 +646,62 @@ let selectedArea =[];
   //Handle Roads
   //==================================================================================
   const roadStartButton = document.getElementById('roadStartButton');
-  roadStartButton.addEventListener("click", e =>{
-    e.preventDefault();
+  roadStartButton.addEventListener("click", () =>{
     road = 1;
   })
 
-  const twoPointRoad = () =>{
-    
+  const twoPointRoad = (pointInput, targetPoint) =>{
+    console.log(pointInput, targetPoint);
+    let list = {self:[pointInput],origin:[pointInput]};
+    console.log(list);
+    for(let i =0; i<list.self.length; i++){
+      
+      const point = list.self[i];
+      const neighbors = [{x:point.x+1,y:point.y},{x:point.x-1,y:point.y},{x:point.x,y:point.y+1},{x:point.x,y:point.y-1}];
+      neighbors.map(n=>{
+        if(validCheck(n)){
+          if(list.self.findIndex(ex=>ex.x==n.x&&ex.y==n.y)==-1){
+            list.self.push(n);
+            list.origin.push(point);
+          }
+        }
+      });
+      //check to see it the target point is in the self list
+      const traceRoute = (trace)=>{
+        const focus = trace[trace.length-1];
+        const index = list.self.findIndex(e=>e.x==focus.x&&e.y==focus.y);
+        const focusOrigin = list.origin[index];
+        if(focusOrigin.y==pointInput.y&&focusOrigin.x==pointInput.x){
+          return [...trace, focusOrigin];
+        }else{
+          return traceRoute([...trace,focusOrigin]);
+        }
+      }
+      if(list.self.findIndex(element=>element.x==targetPoint.x&&element.y==targetPoint.y)!=-1){
+        return traceRoute([targetPoint]);
+      }
+    }
+  }
+  const drawRoad = (array) =>{
+    array.map(e=>{
+      gridPlus5[e.x][e.y].elevation = 1;
+    });
+    clearMap();
+    drawMap();
+  }
+
+  const validCheck = (input)=>{
+    return isValid(input,gridPlus5,x,y);
+  }
+  const isValid = (point, array,maxX,maxY)=>{
+    const maxEl = 0.4;
+    const minEl = 0.31;
+    if(point.x>=0&&point.x<=maxX&&point.y>=0&&point.y<=maxY){
+      if(array[point.x][point.y].elevation >=minEl&&array[point.x][point.y].elevation<=maxEl){
+        return true;
+      }
+    }
+    return false;
   }
 
   //==================================================================================
@@ -667,6 +716,9 @@ let selectedArea =[];
     }else if(road!=0){
       if(road ==2){
         //call the 2 point road method
+        const roadPath = twoPointRoad({x:roadPoint.x/q,y:roadPoint.y/q},{x:quantizeMouse().x/q,y:quantizeMouse().y/q});
+        console.log(roadPath);
+        drawRoad(roadPath);
         road = 0;
       }else if(road==1){
         const obj = quantizeMouse();
