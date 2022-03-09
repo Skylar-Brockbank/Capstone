@@ -737,7 +737,7 @@ let selectedArea =[];
         road += 1;
       }
     }else if(!view){
-      //resource selector
+      drawInfoZone(quantizeMouse(),'red');
     }else{
       drawing = true;
       const marker = quantizeMouse();
@@ -764,6 +764,17 @@ let selectedArea =[];
     brush.beginPath();
     brush.fillStyle = color;
     brush.fillRect(marker.x,marker.y,1*q,1*q);
+    brush.stroke();
+  }
+  const drawInfoZone = (marker,color) =>{
+    console.log(marker);
+    const x = (marker.x)-(marker.x)%(5*q);
+    const y = (marker.y)-(marker.y)%(5*q);
+    console.log(x,y)
+    brush.lineWidth = 2;
+    brush.strokeStyle = color;
+    brush.beginPath();
+    brush.rect(x,y,5*q,5*q);
     brush.stroke();
   }
 
