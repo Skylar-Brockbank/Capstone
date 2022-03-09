@@ -399,6 +399,18 @@ const convertToBiome = (target,set)=>{
   return styleMatrix[set][temp][precip];
 }
 
+//generate resource list
+//map(
+//take the value of the resource grid the elevation temperature and rainfall of gridPlus5 and give back items
+//)
+const generateResourceList = (resourceValues, mapGrid) =>{
+  return resourceValues.map( (rv ,indexX)=>{
+    return rv.map((srv,indexY)=>{
+      const targetCell = mapGrid[indexX][indexY];
+      return {resourceValue: srv,elevation:targetCell.elevation,temperature: targetCell.temperature, precipitation: targetCell.precipitation};
+    })
+  })
+}
 
 //==========================================================================================
 // Drawing things to the screen
@@ -432,8 +444,8 @@ const gridPlus4 = applyRainShadows(gridPlus3,0.4);
 let gridPlus5=swapXY(gridPlus4);
 
 let saveState = JSON.parse(JSON.stringify(gridPlus5));
-console.log(saveState);
 
+let resourceGrid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
 
 const drawMap = () =>{
   for(let j=0;j<y;j++){
@@ -737,7 +749,7 @@ let selectedArea =[];
         road += 1;
       }
     }else if(!view){
-      drawInfoZone(quantizeMouse(),'red');
+      selectInfoZone(quantizeMouse(),'red');
     }else{
       drawing = true;
       const marker = quantizeMouse();
@@ -766,7 +778,7 @@ let selectedArea =[];
     brush.fillRect(marker.x,marker.y,1*q,1*q);
     brush.stroke();
   }
-  const drawInfoZone = (marker,color) =>{
+  const selectInfoZone = (marker,color) =>{
     console.log(marker);
     const x = (marker.x)-(marker.x)%(5*q);
     const y = (marker.y)-(marker.y)%(5*q);
