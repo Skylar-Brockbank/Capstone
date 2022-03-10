@@ -568,7 +568,7 @@ let gridPlus5=swapXY(gridPlus4);
 let saveState = JSON.parse(JSON.stringify(gridPlus5));
 
 let resourceGrid = enhance(noise2D(noiseConstants[0],noiseConstants[1]),x,y);
-
+let resources = assignResources(generateResourceList(resourceGrid,gridPlus5));
 const drawMap = () =>{
   for(let j=0;j<y;j++){
     for(let k=0; k<x; k++){
@@ -905,11 +905,38 @@ let selectedArea =[];
     const x = (marker.x)-(marker.x)%(5*q);
     const y = (marker.y)-(marker.y)%(5*q);
     console.log(x,y)
+    setInfoContent({x:x,y:y});
+    clearMap();
+    drawMap();
     brush.lineWidth = 2;
     brush.strokeStyle = color;
     brush.beginPath();
     brush.rect(x,y,5*q,5*q);
     brush.stroke();
+
+  }
+  const resourceSummary = document.getElementById('resourceSummary');
+  const setInfoContent = (point)=>{
+    let itemList = {};
+    const x = point.x/q;
+    const y = point.y/q;
+    for(let i = x;i<=(x+4);i++){
+      for(let j=y;j<=(y+4);j++){
+        //get the resource grid for [i][j]
+        const item = resources[i][j];
+          itemList[item.item]= (itemList[item.item])?itemList[item.item]+item.qty:item.qty;
+        //if object has key of 'string' add the int to that key otherwise add the key and set the int
+      }
+    }
+    console.log(itemList);
+    resourceSummary.innerHTML = '';
+    
+    for(let item in itemList){
+      const node = document.createElement('li');
+      const nodeText = document.createTextNode(`${item},${itemList[item]}`);
+      node.appendChild(nodeText);
+      resourceSummary.appendChild(node);
+    }
   }
 
   //==================================================================================
