@@ -412,6 +412,128 @@ const generateResourceList = (resourceValues, mapGrid) =>{
   })
 }
 
+const assignResources = (resourceMap)=>{
+  const maxItemCount = 5
+  const resourceMatrix = {
+    //elevation: all ocean
+    0:{
+      0:{
+        //cold dry
+        0: ['fish'],
+        //cold wet
+        1:['fish']
+      },
+      1:{
+        //hot dry
+        0:['fish'],
+        //hot wet
+        1:['pearl']
+      }
+    },
+    //elevation: beach
+    1:{
+      //temp
+      0:{
+        //cold dry
+        0: ['shells'],
+        //cold wet
+        1:['seaweed']
+      },
+      1:{
+        //hot dry
+        0:['shells'],
+        //hot wet
+        1:['coconuts']
+      }
+    },
+    //elevation: planes
+    2:{
+      //temp
+      0:{
+        //cold dry
+        0: ['medicinal roots'],
+        //cold wet
+        1:['grass']
+      },
+      1:{
+        //hot dry
+        0:['cactus'],
+        //hot wet
+        1:['slugs']
+      }
+    },
+    //elevation: trees
+    3:{
+      0:{
+        //cold dry
+        0: ['grass'],
+        //cold wet
+        1:['Pine Wood','arctic berries']
+      },
+      1:{
+        //hot dry
+        0:['cactus'],
+        //hot wet
+        1:['jungle wood','coffee beans']
+      }
+    },
+    //elevation: mountains
+    4:{
+      0:{
+        //cold dry
+        0: ['stone','ore'],
+        //cold wet
+        1:['stone','gems']
+      },
+      1:{
+        //hot dry
+        0:['stone','sulfur'],
+        //hot wet
+        1:['stone','ore','sulfur']
+      }
+    },
+    //elevation: mountain tops
+    5:{
+      0:{
+        //cold dry
+        0: ['Magic flowers','Magic stag'],
+        //cold wet
+        1:['Magic flowers']
+      },
+      1:{
+        //hot dry
+        0:['Magic flowers'],
+        //hot wet
+        1:['Magic flowers']
+      }
+    }
+  }
+  //const bounds = [0.24,0.25,0.31,0.33,0.37,0.4,0.42,0.46];
+  return resourceMap.map(l1=>{
+    return l1.map(r=>{
+      const temp = (r.temperature>0.5)?1:0;
+      const precip = (r.precipitation>0.5)?1:0;
+      let elevation;
+      if(r.elevation<0.25){
+        elevation = 0;
+      }else if(r.elevation>=0.25&&r.elevation<0.31){
+        elevation = 1;
+      }else if(r.elevation>=0.31&&r.elevation<0.33){
+        elevation = 2;
+      }else if(r.elevation>=0.33&&r.elevation<0.37){
+        elevation = 3;
+      }else if(r.elevation>=0.37&&r.elevation<0.46){
+        elevation = 4;
+      }else if(r.elevation>=0.46){
+        elevation = 5;
+      }
+      const options = resourceMatrix[elevation][temp][precip];
+      const selection = Math.ceil(r.resourceValue*maxItemCount);
+      return {qty:selection,item:options[selection%(options.length)]};
+    })
+  })
+}
+
 //==========================================================================================
 // Drawing things to the screen
 //==========================================================================================
