@@ -541,8 +541,8 @@ let screen = document.getElementById('screen');
 let brush = screen.getContext("2d");
 screen.style.boxSizing = 'border-box';
 
-const x = 500;
-const y= 250;
+const x = 200;
+const y= 100;
 const noiseConstants = [80,65];
 
 let q;
